@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.I18NBundle;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
@@ -32,7 +34,7 @@ public class MainScreen implements Screen {
 
 	private static final float WIDTH = Gdx.graphics.getWidth();
 	private static final float HEIGHT = Gdx.graphics.getHeight();
-	private static final int BWIDTH = 140;
+	private static final int BWIDTH = 170;
 	private static final int BHEIGHT = 70;
 
 	private Root root;
@@ -85,7 +87,10 @@ public class MainScreen implements Screen {
 
 		Gdx.input.setInputProcessor(stage);
 
-		buttonPlay = new TextButton("Play", skin);
+		FileHandle baseFileHandle = Gdx.files.internal("ui/localization/magyar");
+		I18NBundle myBundle = I18NBundle.createBundle(baseFileHandle, "UTF8");
+		
+		buttonPlay = new TextButton(myBundle.get("play"), skin);
 		buttonPlay.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -105,7 +110,7 @@ public class MainScreen implements Screen {
 		});
 		buttonPlay.pad(7.5f);
 
-		buttonOption = new TextButton("Option", skin);
+		buttonOption = new TextButton(myBundle.get("option"), skin);
 		buttonOption.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -121,7 +126,7 @@ public class MainScreen implements Screen {
 		});
 		buttonOption.pad(7.5f);
 
-		buttonTutorial = new TextButton("Tutorial", skin);
+		buttonTutorial = new TextButton(myBundle.get("tutorial"), skin);
 		buttonTutorial.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -137,7 +142,7 @@ public class MainScreen implements Screen {
 		});
 		buttonTutorial.pad(7.5f);
 
-		buttonQuit = new TextButton("Quit", skin);
+		buttonQuit = new TextButton(myBundle.get("quit"), skin);
 		buttonQuit.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
