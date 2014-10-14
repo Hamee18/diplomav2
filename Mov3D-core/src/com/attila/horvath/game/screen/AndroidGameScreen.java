@@ -38,7 +38,8 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 	private final static short ALL_FLAG = -1;
 	private final static float WIDTH = Gdx.graphics.getWidth();
 	private final static float HEIGHT = Gdx.graphics.getHeight();
-
+	private final static String[] objektumok = { "I", "L", "O", "T", "Z" };
+	
 	private Root root;
 	private ModelBatch modelBatch;
 	private GameCamera worldCamera;
@@ -55,7 +56,7 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 	private btBroadphaseInterface broadphase;
 	private Random random;
 	private int rotate = 0;
-	private static final String[] objektumok = { "I", "L", "O", "T", "Z" };
+	
 
 	private OrthographicCamera camera;
 	private Sprite sprite;

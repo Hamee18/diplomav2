@@ -3,7 +3,6 @@ package com.attila.horvath.item;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
@@ -18,8 +17,7 @@ import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
 import com.badlogic.gdx.utils.Disposable;
 
-public class Item extends ModelInstance implements InputProcessor,
-		RenderableProvider, Disposable {
+public class Item extends ModelInstance implements RenderableProvider, Disposable {
 
 	private final btCollisionObject body;
 	private boolean moving = false;
@@ -109,71 +107,4 @@ public class Item extends ModelInstance implements InputProcessor,
 			return new Item(model, createConvexHullShape(model, true));
 		}
 	}
-
-	@Override
-	public boolean keyDown(int keycode) {
-//		switch (keycode) {
-//		case Keys.LEFT:
-//			this.transform.trn(0, 0, -5);
-//			setWordTransform();
-//			break;
-//		case Keys.RIGHT:
-//			this.transform.trn(0, 0, 5);
-//			setWordTransform();
-//			break;
-//		case Keys.UP:
-//			this.transform.trn(5, 0, 0);
-//			setWordTransform();
-//			break;
-//		case Keys.DOWN:
-//			this.transform.trn(-5, 0, 0);
-//			setWordTransform();
-//			break;
-//		}
-
-		return true;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

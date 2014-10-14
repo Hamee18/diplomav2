@@ -57,6 +57,8 @@ public class MainScreen implements Screen {
 
 	public MainScreen(Root root) {
 		this.root = root;
+		
+		initComponent();
 	}
 
 	@Override
@@ -74,11 +76,64 @@ public class MainScreen implements Screen {
 		spriteBatch.begin();
 		stage.draw();
 		spriteBatch.end();
-
 	}
 
 	@Override
 	public void resize(int width, int height) {
+		
+	}
+
+	@Override
+	public void show() {
+		
+	}
+
+	@Override
+	public void hide() {
+		menuMusic.stop();
+		dispose();
+	}
+
+	@Override
+	public void pause() {
+
+	}
+
+	@Override
+	public void resume() {
+
+	}
+
+	@Override
+	public void dispose() {
+		stage.dispose();
+		skin.dispose();
+		atlas.dispose();
+		menuMusic.dispose();
+	}
+
+	private void initComponent() {
+		camera = new OrthographicCamera(1, HEIGHT / WIDTH);
+		spriteBatch = new SpriteBatch();
+		atlas = new TextureAtlas("ui/pack/button.pack");
+		skin = new Skin(Gdx.files.internal("ui/json/mainSkin.json"), atlas);
+		table = new Table(skin);
+		table.setBounds(0, 0, WIDTH, HEIGHT);
+
+		batch = new SpriteBatch();
+		texture = new Texture(Gdx.files.internal("ui/background.jpg"));
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion region = new TextureRegion(texture, 0, 0, WIDTH, HEIGHT);
+		sprite = new Sprite(region);
+		sprite.setSize(1f, sprite.getHeight() / sprite.getWidth());
+		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
+		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
+
+		menuMusic = Gdx.audio.newMusic(Gdx.files
+				.internal("music/menumusic.mp3"));
+		menuMusic.play();
+		menuMusic.setLooping(true);
+		
 		if (stage == null) {
 			stage = new Stage();
 		}
@@ -87,7 +142,7 @@ public class MainScreen implements Screen {
 
 		Gdx.input.setInputProcessor(stage);
 
-		FileHandle baseFileHandle = Gdx.files.internal("ui/localization/magyar");
+		FileHandle baseFileHandle = Gdx.files.internal("ui/localization/english");
 		I18NBundle myBundle = I18NBundle.createBundle(baseFileHandle, "UTF8");
 		
 		buttonPlay = new TextButton(myBundle.get("play"), skin);
@@ -192,57 +247,7 @@ public class MainScreen implements Screen {
 		table.add(buttonQuit);
 		table.getCell(buttonQuit).height(BHEIGHT);
 		table.getCell(buttonQuit).width(BWIDTH);
-		// table.getCell(buttonQuit).space(20f);
 
 		stage.addActor(table);
 	}
-
-	@Override
-	public void show() {
-		camera = new OrthographicCamera(1, HEIGHT / WIDTH);
-		spriteBatch = new SpriteBatch();
-		atlas = new TextureAtlas("ui/pack/button.pack");
-		skin = new Skin(Gdx.files.internal("ui/json/mainSkin.json"), atlas);
-		table = new Table(skin);
-		table.setBounds(0, 0, WIDTH, HEIGHT);
-
-		batch = new SpriteBatch();
-		texture = new Texture(Gdx.files.internal("ui/background.jpg"));
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		TextureRegion region = new TextureRegion(texture, 0, 0, WIDTH, HEIGHT);
-		sprite = new Sprite(region);
-		sprite.setSize(1f, sprite.getHeight() / sprite.getWidth());
-		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
-
-		menuMusic = Gdx.audio.newMusic(Gdx.files
-				.internal("music/menumusic.mp3"));
-		menuMusic.play();
-		menuMusic.setLooping(true);
-	}
-
-	@Override
-	public void hide() {
-		menuMusic.stop();
-		dispose();
-	}
-
-	@Override
-	public void pause() {
-
-	}
-
-	@Override
-	public void resume() {
-
-	}
-
-	@Override
-	public void dispose() {
-		stage.dispose();
-		skin.dispose();
-		atlas.dispose();
-		menuMusic.dispose();
-	}
-
 }

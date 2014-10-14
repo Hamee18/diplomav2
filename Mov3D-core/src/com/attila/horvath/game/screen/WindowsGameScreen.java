@@ -46,6 +46,7 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 	private final static short ALL_FLAG = -1;
 	private final static float WIDTH = Gdx.graphics.getWidth();
 	private final static float HEIGHT = Gdx.graphics.getHeight();
+	private final static String[] objektumok = { "I", "L", "O", "T", "Z" };
 
 	private Root root;
 	private ModelBatch modelBatch;
@@ -63,7 +64,7 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 	private btBroadphaseInterface broadphase;
 	private Random random;
 	private int rotate = 0;
-	private static final String[] objektumok = { "I", "L", "O", "T", "Z" };
+	
 
 	private OrthographicCamera camera;
 	private Sprite sprite;
@@ -94,18 +95,16 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 				int userValue1, int partId1, int index1) {
 			instances.get(userValue0).setMoving(false);
 			instances.get(userValue1).setMoving(false);
-			// collision = true;
+			
 			return true;
 		}
 	}
 
 	public WindowsGameScreen(Root root) {
 		this.root = root;
-//		Gdx.input.setInputProcessor(this);
 		
-		Bullet.init();
-
-		random = new Random();
+		//Bullet inicializálása
+		Bullet.init();	
 		collisionConfig = new btDefaultCollisionConfiguration();
 		dispatcher = new btCollisionDispatcher(collisionConfig);
 		broadphase = new btDbvtBroadphase();
@@ -113,6 +112,8 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 				collisionConfig);
 		contactListener = new MyContactListener();
 
+		//Elsõ lehulló objektum és a játéktér beállitása
+		random = new Random();
 		instances = new Array<Item>();
 		try {
 			modelBatch = new ModelBatch();
@@ -130,6 +131,7 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 			Gdx.app.log(null, e.toString());
 		}
 
+		//Játéktér hátterének beállitása
 		camera = new OrthographicCamera(1, HEIGHT / WIDTH);
 
 		batch = new SpriteBatch();
@@ -148,28 +150,7 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 
 		collisionWorld.performDiscreteCollisionDetection();
 
-		// for (Item i : instances) {
-		// if (i.transform.getTranslation(Vector3.Y).y > -100f
-		// && i.getMoving() && !collision) {
-		// i.setTransform(1f);
-		// } else if (collision ||
-		// currentItem.transform.getTranslation(Vector3.Y).y <= -100f){
-		//
-		//
-		// collision = false;
-		// }
-		// }
-		//
-		// if ((spawnTimer -= d) < 0) {
-		// currentItem = (new Item.Constructor("c")).construct();
-		// currentItem.setMoving(true);
-		// currentItem.setUserValue(instances.size);
-		// instances.add(currentItem);
-		// collisionWorld.addCollisionObject(currentItem.getBody(),
-		// GROUND_FLAG, ALL_FLAG);
-		// spawnTimer = 5f;
-		// }
-
+		//Objektum mozgatás
 		if ((spawnTimer -= d) < 0) {
 			for (Item i : instances) {
 				if (i.transform.getTranslation(Vector3.Y).y > -100f
@@ -189,7 +170,6 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 					collision = false;
 				}
 			}
-
 			spawnTimer = 0.3f;
 		}
 
@@ -218,12 +198,31 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 
 	@Override
 	public void resize(int width, int height) {
+		
+	}
+
+	@Override
+	public void pause() {
+
+	}
+
+	@Override
+	public void resume() {
+
+	}
+
+	@Override
+	public void show() {
+		spriteBatch = new SpriteBatch();
+		arrowAtlas = new TextureAtlas("ui/pack/gamebutton.pack");
+		turnAtlas = new TextureAtlas("ui/pack/turngamebutton.pack");
+		arrowSkin = new Skin(Gdx.files.internal("ui/json/arrowGameSkin.json"), arrowAtlas);
+		turnSkin = new Skin(Gdx.files.internal("ui/json/turnGameSkin.json"), turnAtlas);
+		
 		if (stage == null) {
 			stage = new Stage();
 		}
 		stage.clear();
-		
-//		Gdx.input.setInputProcessor(stage);
 		
 		InputProcessor keyboard = this;
 		InputProcessor buttons = stage;
@@ -357,25 +356,6 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 		stage.addActor(turnUp);
 		stage.addActor(turnRight);
 		stage.addActor(turnRightZ);
-	}
-
-	@Override
-	public void pause() {
-
-	}
-
-	@Override
-	public void resume() {
-
-	}
-
-	@Override
-	public void show() {
-		spriteBatch = new SpriteBatch();
-		arrowAtlas = new TextureAtlas("ui/pack/gamebutton.pack");
-		turnAtlas = new TextureAtlas("ui/pack/turngamebutton.pack");
-		arrowSkin = new Skin(Gdx.files.internal("ui/json/arrowGameSkin.json"), arrowAtlas);
-		turnSkin = new Skin(Gdx.files.internal("ui/json/turnGameSkin.json"), turnAtlas);
 	}
 
 	@Override
@@ -536,37 +516,37 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 }
