@@ -5,6 +5,7 @@ import com.attila.horvath.game.screen.WindowsGameScreen;
 import com.attila.horvath.mov3d.Root;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.audio.Music;
@@ -52,8 +53,9 @@ public class MainScreen implements Screen {
 	private Sprite sprite;
 	private Texture texture;
 	private SpriteBatch batch;
-
 	private Music menuMusic;
+	
+	private Preferences preferences;
 
 	public MainScreen(Root root) {
 		this.root = root;
@@ -133,7 +135,7 @@ public class MainScreen implements Screen {
 				.internal("music/menumusic.mp3"));
 		menuMusic.play();
 		menuMusic.setLooping(true);
-		
+				
 		if (stage == null) {
 			stage = new Stage();
 		}
@@ -142,7 +144,15 @@ public class MainScreen implements Screen {
 
 		Gdx.input.setInputProcessor(stage);
 
-		FileHandle baseFileHandle = Gdx.files.internal("ui/localization/english");
+		preferences = Gdx.app.getPreferences("tetris3d.settings");
+		String displayLang = preferences.getString("display", "");
+		
+		FileHandle baseFileHandle;
+		if (displayLang == "") {
+			baseFileHandle = Gdx.files.internal("ui/localization/magyar");
+		} else {
+			baseFileHandle = Gdx.files.internal("ui/localization/" + displayLang);
+		}
 		I18NBundle myBundle = I18NBundle.createBundle(baseFileHandle, "UTF8");
 		
 		buttonPlay = new TextButton(myBundle.get("play"), skin);
