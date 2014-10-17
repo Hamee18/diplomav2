@@ -7,9 +7,7 @@ import com.attila.horvath.game.GameEnvironment;
 import com.attila.horvath.item.Item;
 import com.attila.horvath.mov3d.Root;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector3;
@@ -29,9 +28,13 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
 import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
-public class AndroidGameScreen implements Screen, InputProcessor{
+public class AndroidGameScreen implements Screen{
 
 	private final static short GROUND_FLAG = 1 << 8;
 //	private final static short OBJECT_FLAG = 1 << 9;
@@ -55,14 +58,23 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 	private MyContactListener contactListener;
 	private btBroadphaseInterface broadphase;
 	private Random random;
-	private int rotate = 0;
-	
 
 	private OrthographicCamera camera;
 	private Sprite sprite;
 	private SpriteBatch batch;
 	private Texture texture;
-
+	private Stage stage;
+	private TextureAtlas atlas;
+	private Skin skin;
+	private Table table;
+	private Label x,y,z;
+	
+	private float zeroX, zeroY, zeroZ;
+	private boolean moveLeft = false;
+	private boolean moveRight = false;
+	private boolean moveUp = false;
+	private boolean moveDown = false;
+	
 	class MyContactListener extends ContactListener {
 		@Override
 		public boolean onContactAdded(int userValue0, int partId0, int index0,
@@ -76,7 +88,6 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 
 	public AndroidGameScreen(Root root) {
 		this.root = root;
-		Gdx.input.setInputProcessor(this);
 		
 		Bullet.init();
 	
@@ -115,6 +126,27 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 		sprite.setSize(1f, sprite.getHeight() / sprite.getWidth());
 		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
+		
+		stage = new Stage();
+		atlas = new TextureAtlas("ui/pack/button.pack");
+		skin = new Skin(Gdx.files.internal("ui/json/mainSkin.json"), atlas);
+		
+		table = new Table(skin);
+		table.setBounds(0, 0, WIDTH, HEIGHT);
+		table.setPosition(0, 0);
+		
+		x = new Label("x: ", skin);
+		y = new Label("y: ", skin);
+		z = new Label("z: ", skin);
+		
+		table.add(x).row();
+		table.add(y).row();
+		table.add(z).row();
+		
+		stage.addActor(table);
+		
+		zeroY = Gdx.input.getAccelerometerY();
+		zeroZ = Gdx.input.getAccelerometerZ();
 	}
 
 	@Override
@@ -122,28 +154,6 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 		final float d = Math.min(1f / 30f, Gdx.graphics.getDeltaTime());
 
 		collisionWorld.performDiscreteCollisionDetection();
-
-		// for (Item i : instances) {
-		// if (i.transform.getTranslation(Vector3.Y).y > -100f
-		// && i.getMoving() && !collision) {
-		// i.setTransform(1f);
-		// } else if (collision ||
-		// currentItem.transform.getTranslation(Vector3.Y).y <= -100f){
-		//
-		//
-		// collision = false;
-		// }
-		// }
-		//
-		// if ((spawnTimer -= d) < 0) {
-		// currentItem = (new Item.Constructor("c")).construct();
-		// currentItem.setMoving(true);
-		// currentItem.setUserValue(instances.size);
-		// instances.add(currentItem);
-		// collisionWorld.addCollisionObject(currentItem.getBody(),
-		// GROUND_FLAG, ALL_FLAG);
-		// spawnTimer = 5f;
-		// }
 
 		if ((spawnTimer -= d) < 0) {
 			for (Item i : instances) {
@@ -180,11 +190,80 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 		batch.begin();
 		sprite.draw(batch);
 		batch.end();
+		
+		stage.act(delta);
+		batch.begin();
+//		Gdx.input.getRotationMatrix(rotationMatrix);
+//		StringBuilder sb = new StringBuilder();
+//		for(int i = 0; i < rotationMatrix.length; i++) {
+//			if (i % 15 == 0)
+//				sb.append(rotationMatrix[i] + "\n");
+//			else 
+//				sb.append(rotationMatrix[i] + " ");
+//		}
+		x.setText("Azmuth: " + Gdx.input.getAccelerometerX());
+		y.setText("Pitch: " + Gdx.input.getAccelerometerY());
+		z.setText("Roll: " + Gdx.input.getAccelerometerZ());
+		stage.draw();
+		batch.end();
+		
+		if (Gdx.input.getAccelerometerY() < (zeroY - 5)) {
+			moveLeft = true;
+		}
+		
+		if (Gdx.input.getAccelerometerY() > (zeroY + 5)) {
+			moveRight = true;
+		}
+		
+		if (Gdx.input.getAccelerometerZ() < (zeroZ - 5)) {
+			moveDown = true;
+		}
+		
+		if (Gdx.input.getAccelerometerZ() > (zeroZ + 5)) {
+			moveUp = true;
+		}
+		
+		if (moveLeft && !moveUp && (Gdx.input.getAccelerometerY() > (zeroY - 1)) &&
+				(Gdx.input.getAccelerometerY() < (zeroY + 1))) {
+			currentItem.transform.trn(0, 0, -5);
+			moveLeft = false;
+		}
+		
+		if (moveRight && (Gdx.input.getAccelerometerY() > (zeroY - 1)) &&
+				(Gdx.input.getAccelerometerY() < (zeroY + 1))) {
+			currentItem.transform.trn(0, 0, 5);
+			moveRight = false;
+		}
+		
+		if (moveDown && (Gdx.input.getAccelerometerZ() > (zeroZ - 1)) &&
+				(Gdx.input.getAccelerometerZ() < (zeroZ + 1))) {
+			currentItem.transform.trn(-5, 0, 0);
+			moveDown = false;
+		}
 
+		if (moveUp && !moveLeft && (Gdx.input.getAccelerometerZ() > (zeroZ - 1)) &&
+				(Gdx.input.getAccelerometerZ() < (zeroZ + 1))) {
+			currentItem.transform.trn(5, 0, 0);
+			moveUp = false;
+		}
+		
+		if (moveLeft && moveUp && (Gdx.input.getAccelerometerZ() > (zeroZ - 1)) &&
+		(Gdx.input.getAccelerometerZ() < (zeroZ + 1)) && (Gdx.input.getAccelerometerY() > (zeroY - 1)) &&
+		(Gdx.input.getAccelerometerY() < (zeroY + 1))) {
+			
+			currentItem.transform.rotate(1, 0, 0, 90);
+			currentItem.setWordTransform();
+			
+			moveLeft = false;
+			moveUp = false;
+		}
+		
 		modelBatch.begin(worldCamera.getCamera());
 		modelBatch.render(instances, worldEnv.getEnvironment());
 		modelBatch.end();
 
+		
+		
 	}
 
 	@Override
@@ -213,7 +292,6 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 
 	@Override
 	public void dispose() {
-
 		for (Item item : instances) {
 			item.dispose();
 		}
@@ -229,170 +307,4 @@ public class AndroidGameScreen implements Screen, InputProcessor{
 		modelBatch.dispose();
 		root.dispose();
 	}
-
-	@Override
-	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		switch (keycode) {
-		case Keys.SHIFT_LEFT:
-			worldCamera.getCamera().rotate(-90, 0, 1, 0);
-			
-			switch(rotate) {
-			case 0:
-				worldCamera.getCamera().position.set(0, Gdx.graphics.getHeight()/40,-1 * (Gdx.graphics.getHeight()/3));
-				break;
-			case 1:
-				worldCamera.getCamera().position.set(Gdx.graphics.getHeight()/3, Gdx.graphics.getHeight()/40, 0);
-				break;
-			case 2:
-				worldCamera.getCamera().position.set(0, Gdx.graphics.getHeight()/40, Gdx.graphics.getHeight()/3);
-				break;
-			case 3:
-				worldCamera.getCamera().position.set(-1 * (Gdx.graphics.getHeight()/3), Gdx.graphics.getHeight()/40, 0);
-				break;
-			}
-			if (rotate < 3) {
-				rotate++;
-			} else {
-				rotate = 0;
-			}
-			break;
-		case Keys.LEFT:
-			switch(rotate){
-			case 0:
-				currentItem.transform.trn(0, 0, -5);
-				break;
-			case 1:
-				currentItem.transform.trn(5, 0, 0);
-				break;
-			case 2: 
-				currentItem.transform.trn(0, 0, 5);
-				break;
-			case 3:
-				currentItem.transform.trn(-5, 0, 0);
-				break;
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.RIGHT:
-			switch(rotate){
-			case 0:
-				currentItem.transform.trn(0, 0, 5);
-				break;
-			case 1:
-				currentItem.transform.trn(-5, 0, 0);
-				break;
-			case 2: 
-				currentItem.transform.trn(0, 0, -5);
-				break;
-			case 3:
-				currentItem.transform.trn(5, 0, 0);
-				break;
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.UP:
-			switch(rotate){
-			case 0:
-				currentItem.transform.trn(5, 0, 0);
-				break;
-			case 1:
-				currentItem.transform.trn(0, 0, 5);
-				break;
-			case 2: 
-				currentItem.transform.trn(-5, 0, 0);
-				break;
-			case 3:
-				currentItem.transform.trn(0, 0, -5);
-				break;
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.DOWN:
-			switch(rotate){
-			case 0:
-				currentItem.transform.trn(-5, 0, 0);
-				break;
-			case 1:
-				currentItem.transform.trn(0, 0, -5);
-				break;
-			case 2: 
-				currentItem.transform.trn(5, 0, 0);
-				break;
-			case 3:
-				currentItem.transform.trn(0, 0, 5);
-				break;
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.A:
-			currentItem.transform.rotate(1, 0, 0, 90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.D:
-			currentItem.transform.rotate(1, 0, 0, -90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.W:
-			currentItem.transform.rotate(0, 0, 1, 90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.S:
-			currentItem.transform.rotate(0, 0, 1, -90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.Q:
-			currentItem.transform.rotate(0, 1, 0, 90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.E:
-			currentItem.transform.rotate(0, 1, 0, -90);
-			currentItem.setWordTransform();
-			break;		
-		}
-		
-		return true;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

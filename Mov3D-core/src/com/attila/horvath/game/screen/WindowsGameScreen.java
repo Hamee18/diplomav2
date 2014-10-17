@@ -65,7 +65,6 @@ public class WindowsGameScreen implements Screen, InputProcessor {
 	private Random random;
 	private int rotate = 0;
 	
-
 	private OrthographicCamera camera;
 	private Sprite sprite;
 	private SpriteBatch batch;
