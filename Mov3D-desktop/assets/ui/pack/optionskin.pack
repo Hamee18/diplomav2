@@ -1,0 +1,40 @@
+
+optionskin.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+default-select-selection
+  rotate: false
+  xy: 0, 70
+  size: 170, 70
+  orig: 170, 70
+  offset: 0, 0
+  index: -1
+default-select
+  rotate: false
+  xy: 0, 0
+  size: 170, 70
+  orig: 170, 70
+  offset: 0, 0
+  index: -1
+default-open
+  rotate: false
+  xy: 170, 70
+  size: 70, 70
+  orig: 70, 70
+  offset: 0, 0
+  index: -1
+default-slider-knob
+  rotate: false
+  xy: 170, 20
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+default-slider
+  rotate: false
+  xy: 170, 0
+  size: 100, 20
+  orig: 100, 20
+  offset: 0, 0
+  index: -1
