@@ -1,6 +1,7 @@
 package com.attila.horvath.screen;
 
 import com.attila.horvath.assets.MainScreenAssets;
+import com.attila.horvath.config.Config;
 import com.attila.horvath.mov3d.Root;
 
 import com.badlogic.gdx.Gdx;
@@ -17,6 +18,8 @@ public class MainScreen implements Screen {
 	private SpriteBatch spriteBatch;
 	private SpriteBatch batch;
 	private MainScreenAssets assets;
+	
+	private float stateTime;
 
 	public MainScreen(Root root) {
 		this.root = root;
@@ -25,6 +28,8 @@ public class MainScreen implements Screen {
 		assets.getMenuMusic().play();
 		
 		initComponent();
+		
+		stateTime = 0F;
 	}
 	
 	private void initComponent() {
@@ -39,16 +44,23 @@ public class MainScreen implements Screen {
 		Gdx.gl.glViewport(0, 0, (int) WIDTH, (int) HEIGHT);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		stateTime += Gdx.graphics.getDeltaTime();
+		assets.setCurrentFrameAnim(stateTime);
 		
 		batch.setProjectionMatrix(assets.getCamera().combined);
 		batch.begin();
-		assets.getSprite().draw(batch);
+			assets.getSprite().draw(batch);		
+			batch.draw(assets.getCurrentFrameAnimL(), 48, 0);
+			batch.draw(assets.getCurrentFrameAnimO(), Config.WIDTH - 96, 0);
+			batch.draw(assets.getCurrentFrameAnimZ(), Config.WIDTH / 2, Config.HEIGHT / 2);
+			batch.draw(assets.getCurrentFrameAnimI(), 144, 0);
+			batch.draw(assets.getCurrentFrameAnimL(), Config.WIDTH - 144, 144);
 		batch.end();
 
 		assets.getStage().act(delta);
 		
 		spriteBatch.begin();
-		assets.getStage().draw();
+			assets.getStage().draw();
 		spriteBatch.end();
 	}
 

@@ -18,6 +18,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -48,6 +49,24 @@ public class MainScreenAssets {
 	private OrthographicCamera camera;
 	private Sprite sprite;
 	private Texture texture;
+	
+	// Animation
+	private Texture animationI;
+	private Texture animationL;
+	private Texture animationO;
+	private Texture animationZ;
+	private TextureRegion[] framesAnimI;
+	private TextureRegion[] framesAnimL;
+	private TextureRegion[] framesAnimO;
+	private TextureRegion[] framesAnimZ;
+	private TextureRegion currentFrameAnimI;
+	private TextureRegion currentFrameAnimL;
+	private TextureRegion currentFrameAnimO;
+	private TextureRegion currentFrameAnimZ;
+	private Animation loadAnimationI;
+	private Animation loadAnimationL;
+	private Animation loadAnimationO;
+	private Animation loadAnimationZ;
 
 	// Preferences
 	private FileHandle baseFileHandle;
@@ -74,6 +93,7 @@ public class MainScreenAssets {
 
 		loadPreferences();
 		loadBackground();
+		loadAnimations();
 		loadButtons();
 		loadMusic();
 		setTable();
@@ -95,16 +115,62 @@ public class MainScreenAssets {
 	}
 
 	private void loadBackground() {
-		camera = new OrthographicCamera(1, Config.HEIGHT / Config.WIDTH);
-		texture = new Texture(Gdx.files.internal("ui/background.jpg"));
+		camera = new OrthographicCamera();
+		camera.setToOrtho(true, Config.WIDTH, Config.HEIGHT);
+		texture = new Texture(Gdx.files.internal("ui/background.png"));
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion region = new TextureRegion(texture, 0, 0, Config.WIDTH, Config.HEIGHT);
 		sprite = new Sprite(region);
 		sprite.setSize(1f, sprite.getHeight() / sprite.getWidth());
 		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
+		sprite.flip(false, true);
 	}
 
+	private void loadAnimations() {
+		animationL = new Texture(Gdx.files.internal("ui/animations/hatteranim1.png"));
+		animationO = new Texture(Gdx.files.internal("ui/animations/hatteranim2.png"));
+		animationZ = new Texture(Gdx.files.internal("ui/animations/hatteranim3.png"));
+		animationI = new Texture(Gdx.files.internal("ui/animations/hatteranim4.png"));
+		
+		TextureRegion[][] temp = TextureRegion.split(animationL, 48, 480);
+		TextureRegion[][] temp2 = TextureRegion.split(animationO, 48, 480);
+		TextureRegion[][] temp3 = TextureRegion.split(animationZ, 96, 480);
+		TextureRegion[][] temp4 = TextureRegion.split(animationI, 48, 480);
+		
+		framesAnimL = new TextureRegion[20];
+		framesAnimO = new TextureRegion[20];
+		framesAnimZ = new TextureRegion[10];
+		framesAnimI = new TextureRegion[20];
+		
+		int index = 0;
+		for(int i = 0; i < temp.length; i++) {
+			for(int j = 0; j < temp[i].length; j++) {
+				framesAnimL[index] = temp[i][j];
+				framesAnimL[index].flip(false, true);
+				framesAnimO[index] = temp2[i][j];
+				framesAnimO[index].flip(false, true);
+				framesAnimI[index] = temp4[i][j];
+				framesAnimI[index].flip(false, true);
+				index++;
+			}		
+		}
+		
+		index = 0;
+		for(int i = 0; i < temp3.length; i++) {
+			for(int j = 0; j < temp3[i].length; j++) {
+				framesAnimZ[index] = temp3[i][j];
+				framesAnimZ[index].flip(false, true);
+				index++;
+			}		
+		}
+		
+		loadAnimationL = new Animation(1F, framesAnimL);
+		loadAnimationO = new Animation(1F, framesAnimO);
+		loadAnimationZ = new Animation(1F, framesAnimZ);
+		loadAnimationI = new Animation(1F, framesAnimI);
+	}
+	
 	private void loadButtons() {
 		buttonPlay = new TextButton(myBundle.get("play"), skin);
 		buttonPlay.addListener(new ClickListener() {
@@ -199,6 +265,15 @@ public class MainScreenAssets {
 				.internal("music/menumusic.mp3"));
 		menuMusic.play();
 		menuMusic.setLooping(true);
+		
+		float volume = preferences.getFloat("music", -1);
+		
+		if (volume == -1) {
+			menuMusic.setVolume(0);
+		} else {
+			menuMusic.setVolume(volume/100);
+		}
+		
 	}
 	
 	private void setTable() {
@@ -235,6 +310,29 @@ public class MainScreenAssets {
 
 	public Music getMenuMusic() {
 		return menuMusic;
+	}
+	
+	public TextureRegion getCurrentFrameAnimL() {
+		return currentFrameAnimL;
+	}
+	
+	public TextureRegion getCurrentFrameAnimO() {
+		return currentFrameAnimO;
+	}
+	
+	public TextureRegion getCurrentFrameAnimZ() {
+		return currentFrameAnimZ;
+	}
+	
+	public TextureRegion getCurrentFrameAnimI() {
+		return currentFrameAnimI;
+	}
+
+	public void setCurrentFrameAnim(float stateTime) {
+		currentFrameAnimL = loadAnimationL.getKeyFrame(stateTime, true);
+		currentFrameAnimO = loadAnimationO.getKeyFrame(stateTime, true);
+		currentFrameAnimZ = loadAnimationZ.getKeyFrame(stateTime, true);
+		currentFrameAnimI = loadAnimationI.getKeyFrame(stateTime, true);
 	}
 
 	public void dispose() {
