@@ -8,7 +8,7 @@
 		"white": { "file": "font/fontwhite.fnt" },
 	},
 	"com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
-		"default": { "font": black, "fontColor": black },
+		"default": { "font": white, "fontColor": white },
 	},
 	"com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
 		"default": { "up": "button", "down": "buttonclick", "font": "black", "pressedOffsetX": 1, "pressedOffsetY": -1 },

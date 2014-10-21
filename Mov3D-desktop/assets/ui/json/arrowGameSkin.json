@@ -14,6 +14,6 @@
 		"default": { "up": "gameButton1", "down": "gameButtonClick", "font": "black", "pressedOffsetX": 1, "pressedOffsetY": -1 },
 	},
 	"com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
-		"default": { "titleFont": black, "titleFontColor": black },
+		"default": { "titleFont": white, "titleFontColor": white },
 	}
 }

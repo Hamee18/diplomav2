@@ -29,5 +29,8 @@
 	},
 	"com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle": {
 		default-horizontal: { background: default-slider, knob: default-slider-knob }
-	}
+	},
+	"com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle": {
+		default: { "checkboxOn": checkOn, "checkboxOff": checkOff, "font": black, "fontColor": black }
+}
 }

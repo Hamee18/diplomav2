@@ -10,9 +10,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class MainScreen implements Screen {
-
-	private static final float WIDTH = Gdx.graphics.getWidth();
-	private static final float HEIGHT = Gdx.graphics.getHeight();
 	
 	private Root root;
 	private SpriteBatch spriteBatch;
@@ -41,7 +38,7 @@ public class MainScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glViewport(0, 0, (int) WIDTH, (int) HEIGHT);
+		Gdx.gl.glViewport(0, 0, (int) Config.WIDTH, (int) Config.HEIGHT);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		stateTime += Gdx.graphics.getDeltaTime();
@@ -76,6 +73,9 @@ public class MainScreen implements Screen {
 	public void hide() {
 		assets.getMenuMusic().stop();
 		assets.dispose();
+		
+		spriteBatch.dispose();
+		batch.dispose();
 	}
 
 	@Override

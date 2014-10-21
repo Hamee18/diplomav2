@@ -10,5 +10,5 @@ public class Config {
 	public static final int BWIDTH = 170;
 	public static final int BHEIGHT = 70;
 	public static final int CWIDTH = 150;
-	public static final int CHEIGHT = 50;
+	public static final int CHEIGHT = 60;
 }

@@ -104,8 +104,7 @@ public class AndroidGameScreen implements Screen{
 			modelBatch = new ModelBatch();
 			worldCamera = new GameCamera();
 			worldEnv = new GameEnvironment();
-			currentItem = (new Item.Constructor(
-					objektumok[random.nextInt(objektumok.length)])).construct();
+			currentItem = (new Item.Constructor()).construct();
 			currentItem.setMoving(true);
 			currentItem.setUserValue(instances.size);
 			instances.add(currentItem);
@@ -162,9 +161,7 @@ public class AndroidGameScreen implements Screen{
 					i.setTransform(5f);
 				} else if (collision
 						|| currentItem.transform.getTranslation(Vector3.Y).y <= -100f) {
-					currentItem = (new Item.Constructor(
-							objektumok[random.nextInt(objektumok.length)]))
-							.construct();
+					currentItem = (new Item.Constructor()).construct();
 					currentItem.setMoving(true);
 					currentItem.setUserValue(instances.size);
 					instances.add(currentItem);

@@ -31,6 +31,20 @@ default-slider-knob
   orig: 50, 50
   offset: 0, 0
   index: -1
+checkOff
+  rotate: false
+  xy: 240, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+checkOn
+  rotate: false
+  xy: 240, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
 default-slider
   rotate: false
   xy: 170, 0

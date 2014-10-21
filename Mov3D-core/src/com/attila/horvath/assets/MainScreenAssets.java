@@ -9,6 +9,7 @@ import com.attila.horvath.game.screen.AndroidGameScreen;
 import com.attila.horvath.game.screen.WindowsGameScreen;
 import com.attila.horvath.mov3d.Root;
 import com.attila.horvath.screen.OptionScreen;
+import com.attila.horvath.screen.QuitScreen;
 import com.attila.horvath.screen.TutorialScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -24,7 +25,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -51,22 +51,10 @@ public class MainScreenAssets {
 	private Texture texture;
 	
 	// Animation
-	private Texture animationI;
-	private Texture animationL;
-	private Texture animationO;
-	private Texture animationZ;
-	private TextureRegion[] framesAnimI;
-	private TextureRegion[] framesAnimL;
-	private TextureRegion[] framesAnimO;
-	private TextureRegion[] framesAnimZ;
-	private TextureRegion currentFrameAnimI;
-	private TextureRegion currentFrameAnimL;
-	private TextureRegion currentFrameAnimO;
-	private TextureRegion currentFrameAnimZ;
-	private Animation loadAnimationI;
-	private Animation loadAnimationL;
-	private Animation loadAnimationO;
-	private Animation loadAnimationZ;
+	private Texture animationI, animationL, animationO, animationZ;
+	private TextureRegion[] framesAnimI, framesAnimL, framesAnimO, framesAnimZ;
+	private TextureRegion currentFrameAnimI, currentFrameAnimL, currentFrameAnimO, currentFrameAnimZ;
+	private Animation loadAnimationI, loadAnimationL, loadAnimationO, loadAnimationZ;
 
 	// Preferences
 	private FileHandle baseFileHandle;
@@ -78,7 +66,7 @@ public class MainScreenAssets {
 
 	public MainScreenAssets(Root root) {
 		this.root = root;
-
+		
 		load();
 	}
 
@@ -228,33 +216,14 @@ public class MainScreenAssets {
 		buttonQuit.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				new Dialog("", skin) {
-					{
-						text("Do you want to exit?");
-						button("Yes", "yes");
-						button("No", "no");
-					}
+				stage.addAction(sequence(moveTo(0, stage.getHeight(), 0.5f),
+						run(new Runnable() {
 
-					@Override
-					protected void result(Object object) {
-						if (((String) object).equals("yes")) {
-							stage.addAction(sequence(
-									moveTo(0, -stage.getWidth(), 0.5f),
-									run(new Runnable() {
-
-										@Override
-										public void run() {
-											Gdx.app.exit();
-										}
-									})));
-						}
-					}
-				}.show(stage);/*
-							 * .setBackground(new TextureRegionDrawable( new
-							 * TextureRegion( new
-							 * Texture(Gdx.files.internal("ui/quitbackground.png"
-							 * )), 0, 0, 800 , 600)));
-							 */
+							@Override
+							public void run() {
+								root.setScreen(new QuitScreen(root));
+							}
+						})));
 			}
 		});
 		buttonQuit.pad(7.5f);
@@ -266,9 +235,10 @@ public class MainScreenAssets {
 		menuMusic.play();
 		menuMusic.setLooping(true);
 		
-		float volume = preferences.getFloat("music", -1);
+		float volume = preferences.getFloat("volume", -1);
+		boolean isMusic = preferences.getBoolean("music", true);
 		
-		if (volume == -1) {
+		if (volume == -1 || !isMusic) {
 			menuMusic.setVolume(0);
 		} else {
 			menuMusic.setVolume(volume/100);

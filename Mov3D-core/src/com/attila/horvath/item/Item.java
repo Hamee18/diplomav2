@@ -18,8 +18,10 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class Item extends ModelInstance implements RenderableProvider, Disposable {
 
+	private final static String[] objects = { "I", "L", "O", "T", "Z" };
 	private final btCollisionObject body;
 	private boolean moving = false;
+	private static Random random = new Random();
 
 	public Item(Model model, btCollisionShape shape) {
 		super(model);
@@ -77,8 +79,8 @@ public class Item extends ModelInstance implements RenderableProvider, Disposabl
 				Color.WHITE, Color.YELLOW };
 		private final Model model;
 
-		public Constructor(String node) {
-			model = assets.getAsset("obj/" + node + ".g3db");
+		public Constructor() {
+			model = assets.getAsset("obj/" + objects[random.nextInt(objects.length)] + ".g3db");
 			model.getMaterial("Material").set(
 					ColorAttribute.createDiffuse(colors[randomColor
 							.nextInt(colors.length - 1)]));

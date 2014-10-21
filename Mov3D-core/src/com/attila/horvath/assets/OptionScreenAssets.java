@@ -13,6 +13,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -31,11 +32,12 @@ public class OptionScreenAssets {
 	private Skin optionSkin, buttonSkin;
 	private TextureAtlas buttonAtlas, optionskinAtlas;
 	private Table table;
-	private Label option, language, difficulty, music;
+	private Label option, language, difficulty, volume, music, keyboard;
 	private Slider musicSlider;
 	private SelectBox<String> sbLanguage;
 	private SelectBox<String> sbDifficulty;
-	private TextButton buttonBack;
+	private CheckBox cbMusic, cbKeyboard;
+	private TextButton buttonSave;
 
 	// Preferences
 	private FileHandle baseFileHandle;
@@ -85,12 +87,16 @@ public class OptionScreenAssets {
 	private void loadComponents() {
 		int intLang = preferences.getInteger("language", -1);
 		int intDiff = preferences.getInteger("difficulty", -1);
-		float floatMusic = preferences.getFloat("music", -1);
+		float floatVolume = preferences.getFloat("volume", -1);
+		boolean isMusic = preferences.getBoolean("music", true);
+		boolean isKeyboard = preferences.getBoolean("keyboard", true);
 		
 		option = new Label(myBundle.get("option"), optionSkin);
 		language = new Label(myBundle.get("language"), optionSkin);
 		difficulty = new Label(myBundle.get("difficulty"), optionSkin);
+		volume = new Label(myBundle.get("volume"), optionSkin);
 		music = new Label(myBundle.get("music"), optionSkin);
+		keyboard = new Label(myBundle.get("keyboard"), optionSkin);
 		
 		sbLanguage = new SelectBox<String>(optionSkin);
 		sbLanguage.setItems(" " + myBundle.get("hungarian"),
@@ -111,26 +117,34 @@ public class OptionScreenAssets {
 		}
 
 		musicSlider = new Slider(0, 100, 5, false, optionSkin);
-		if (floatMusic == -1) {
+		if (floatVolume == -1) {
 			musicSlider.setValue(0);
 		} else {
-			musicSlider.setValue(floatMusic);
+			musicSlider.setValue(floatVolume);
 		}
+		
+		cbMusic = new CheckBox("", optionSkin);
+		cbMusic.setChecked(isMusic);
+		
+		cbKeyboard = new CheckBox("", optionSkin);
+		cbKeyboard.setChecked(isKeyboard);
 
-		buttonBack = new TextButton(myBundle.get("back"), buttonSkin);
-		buttonBack.addListener(new ClickListener() {
+		buttonSave = new TextButton(myBundle.get("save"), buttonSkin);
+		buttonSave.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				preferences.putInteger("language",
 						sbLanguage.getSelectedIndex());
 				preferences.putInteger("difficulty",
 						sbDifficulty.getSelectedIndex());
-				preferences.putFloat("music", musicSlider.getValue());
+				preferences.putFloat("volume", musicSlider.getValue());
 				if (sbLanguage.getSelectedIndex() == 0) {
 					preferences.putString("display", "magyar");
 				} else {
 					preferences.putString("display", "english");
 				}
+				preferences.putBoolean("music", cbMusic.isChecked());
+				preferences.putBoolean("keyboard", cbKeyboard.isChecked());
 				preferences.flush();
 
 				stage.addAction(sequence(moveTo(stage.getWidth(), 0, 0.5f),
@@ -155,10 +169,13 @@ public class OptionScreenAssets {
 		table.add(sbLanguage).size(Config.CWIDTH, Config.CHEIGHT - 20f).center().row();
 		table.add(difficulty).size(Config.CWIDTH, Config.CHEIGHT);
 		table.add(sbDifficulty).size(Config.CWIDTH, Config.CHEIGHT - 20f).center().row();
-		table.add(music).size(Config.CWIDTH, Config.CHEIGHT);
+		table.add(volume).size(Config.CWIDTH, Config.CHEIGHT);
 		table.add(musicSlider).size(Config.CWIDTH, Config.CHEIGHT).row();
-		table.add().row();
-		table.add(buttonBack).size(Config.BWIDTH, Config.BHEIGHT).colspan(2).center();
+		table.add(music).size(Config.CWIDTH, Config.CHEIGHT);
+		table.add(cbMusic).size(Config.CWIDTH, Config.CHEIGHT).row();
+		table.add(keyboard).size(Config.CWIDTH, Config.CHEIGHT);
+		table.add(cbKeyboard).size(Config.CWIDTH, Config.CHEIGHT).row();
+		table.add(buttonSave).size(Config.BWIDTH, Config.BHEIGHT).colspan(2).center();
 	}
 
 	public Stage getStage() {
