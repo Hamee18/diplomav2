@@ -9,11 +9,13 @@ public class AssetsManager {
 	
 	public AssetsManager() {
 		try {
+//			assets.load("obj/cube.g3db", Model.class);
 			assets.load("obj/I.g3db", Model.class);
 			assets.load("obj/L.g3db", Model.class);
 			assets.load("obj/O.g3db", Model.class);
 			assets.load("obj/T.g3db", Model.class);
 			assets.load("obj/Z.g3db", Model.class);
+			assets.load("obj/Ground.g3db", Model.class);
 			assets.finishLoading();
 		} catch (Exception e) {
 			Gdx.app.log("asset:", e.toString());

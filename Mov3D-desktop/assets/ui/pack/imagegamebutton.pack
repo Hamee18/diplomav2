@@ -1,81 +1,95 @@
 
-turngamebutton.png
+imagegamebutton.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-turnDown
+pause
   rotate: false
   xy: 0, 105
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnDownClick
+pauseClick
   rotate: false
   xy: 0, 70
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnLeft
+turnDown
   rotate: false
   xy: 35, 105
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnLeftClick
+turnDownClick
   rotate: false
   xy: 0, 35
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnLeftZ
+turnLeft
   rotate: false
   xy: 35, 70
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnLeftZClick
+turnLeftClick
   rotate: false
   xy: 70, 105
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnRight
+turnLeftZ
   rotate: false
   xy: 0, 0
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnRightClick
+turnLeftZClick
   rotate: false
   xy: 35, 35
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnRightZ
+turnRight
   rotate: false
   xy: 70, 70
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnRightZClick
+turnRightClick
+  rotate: false
+  xy: 105, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnRightZ
   rotate: false
   xy: 35, 0
   size: 35, 35
   orig: 35, 35
   offset: 0, 0
   index: -1
-turnUp
+turnRightZClick
   rotate: false
   xy: 70, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnUp
+  rotate: false
+  xy: 105, 70
   size: 35, 35
   orig: 35, 35
   offset: 0, 0

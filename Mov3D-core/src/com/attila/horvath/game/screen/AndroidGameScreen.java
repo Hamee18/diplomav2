@@ -41,7 +41,8 @@ public class AndroidGameScreen implements Screen{
 	private final static short ALL_FLAG = -1;
 	private final static float WIDTH = Gdx.graphics.getWidth();
 	private final static float HEIGHT = Gdx.graphics.getHeight();
-	private final static String[] objektumok = { "I", "L", "O", "T", "Z" };
+	private final static String[] objects = { "I", "I", "O", "T", "T" };
+	private static Random random = new Random();
 	
 	private Root root;
 	private ModelBatch modelBatch;
@@ -57,7 +58,6 @@ public class AndroidGameScreen implements Screen{
 	private btDispatcher dispatcher;
 	private MyContactListener contactListener;
 	private btBroadphaseInterface broadphase;
-	private Random random;
 
 	private OrthographicCamera camera;
 	private Sprite sprite;
@@ -100,11 +100,12 @@ public class AndroidGameScreen implements Screen{
 		contactListener = new MyContactListener();
 
 		instances = new Array<Item>();
+		String actObj = objects[random.nextInt(objects.length)];
 		try {
 			modelBatch = new ModelBatch();
 			worldCamera = new GameCamera();
 			worldEnv = new GameEnvironment();
-			currentItem = (new Item.Constructor()).construct();
+			currentItem = (new Item.Constructor(actObj)).construct();
 			currentItem.setMoving(true);
 			currentItem.setUserValue(instances.size);
 			instances.add(currentItem);
@@ -161,7 +162,8 @@ public class AndroidGameScreen implements Screen{
 					i.setTransform(5f);
 				} else if (collision
 						|| currentItem.transform.getTranslation(Vector3.Y).y <= -100f) {
-					currentItem = (new Item.Constructor()).construct();
+					String actObj = objects[random.nextInt(objects.length)];
+					currentItem = (new Item.Constructor(actObj)).construct();
 					currentItem.setMoving(true);
 					currentItem.setUserValue(instances.size);
 					instances.add(currentItem);

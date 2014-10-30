@@ -11,4 +11,6 @@ public class Config {
 	public static final int BHEIGHT = 70;
 	public static final int CWIDTH = 150;
 	public static final int CHEIGHT = 60;
+//	public static final float MOVE = (float)Math.sqrt(12*12*2);
+	public static final float MOVE = 18f;
 }

@@ -45,8 +45,7 @@ public class MainScreen implements Screen {
 		assets.setCurrentFrameAnim(stateTime);
 		
 		batch.setProjectionMatrix(assets.getCamera().combined);
-		batch.begin();
-			assets.getSprite().draw(batch);		
+		batch.begin();	
 			batch.draw(assets.getCurrentFrameAnimL(), 48, 0);
 			batch.draw(assets.getCurrentFrameAnimO(), Config.WIDTH - 96, 0);
 			batch.draw(assets.getCurrentFrameAnimZ(), Config.WIDTH / 2, Config.HEIGHT / 2);

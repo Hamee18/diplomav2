@@ -18,9 +18,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -45,12 +43,8 @@ public class MainScreenAssets {
 	private TextButton buttonTutorial;
 	private TextButton buttonQuit;
 
-	// Desktop background
-	private OrthographicCamera camera;
-	private Sprite sprite;
-	private Texture texture;
-	
 	// Animation
+	private OrthographicCamera camera;
 	private Texture animationI, animationL, animationO, animationZ;
 	private TextureRegion[] framesAnimI, framesAnimL, framesAnimO, framesAnimZ;
 	private TextureRegion currentFrameAnimI, currentFrameAnimL, currentFrameAnimO, currentFrameAnimZ;
@@ -80,7 +74,7 @@ public class MainScreenAssets {
 		stage.clear();
 
 		loadPreferences();
-		loadBackground();
+		loadCamera();
 		loadAnimations();
 		loadButtons();
 		loadMusic();
@@ -102,17 +96,9 @@ public class MainScreenAssets {
 		myBundle = I18NBundle.createBundle(baseFileHandle, "UTF8");
 	}
 
-	private void loadBackground() {
+	private void loadCamera() {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(true, Config.WIDTH, Config.HEIGHT);
-		texture = new Texture(Gdx.files.internal("ui/background.png"));
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		TextureRegion region = new TextureRegion(texture, 0, 0, Config.WIDTH, Config.HEIGHT);
-		sprite = new Sprite(region);
-		sprite.setSize(1f, sprite.getHeight() / sprite.getWidth());
-		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
-		sprite.flip(false, true);
 	}
 
 	private void loadAnimations() {
@@ -274,10 +260,6 @@ public class MainScreenAssets {
 		return camera;
 	}
 
-	public Sprite getSprite() {
-		return sprite;
-	}
-
 	public Music getMenuMusic() {
 		return menuMusic;
 	}
@@ -310,6 +292,5 @@ public class MainScreenAssets {
 		menuMusic.dispose();
 		skin.dispose();
 		atlas.dispose();
-		texture.dispose();
 	}
 }
