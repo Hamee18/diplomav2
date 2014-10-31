@@ -60,7 +60,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	private ArrayList<Integer> collID;
 	private Vector3[] groundCorners, currentItemCorners;
 	private Vector3 cameraRotation;
-	private final static String[] objects = { "I", "I", "O", "T", "Z" };
+	private final static String[] objects = { "Z", "Z", "Z", "Z", "Z" };
 	private static Random random = new Random();
 	private String actObj = "";
 
@@ -415,8 +415,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		return sprite;
 	}
 	
-	public TextureRegion getNextObjectRegion() {
-		return nextObjectRegion;
+	public Texture getNextObject() {
+		return nextObject;
 	}
 
 	public Stage getStage() {
@@ -457,7 +457,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	@Override
 	public boolean keyUp(int keycode) {
 		switch (keycode) {
-		case Keys.SHIFT_LEFT:
+		case Keys.CONTROL_LEFT:
 			worldCamera.getCamera().rotate(-90, 0, 1, 0);
 
 			switch (rotate) {
@@ -496,7 +496,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			if (!moveOut()) {
 				switch (rotate) {
 				case 0:
-					currentItem.transform.trn(0, 0, -Config.MOVE);
+					currentItem.transform.trn(Config.MOVE/2, 0, -Config.MOVE/2);
 					break;
 				case 1:
 					currentItem.transform.trn(Config.MOVE, 0, 0);
@@ -519,7 +519,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			if (!moveOut()) {
 				switch (rotate) {
 				case 0:
-					currentItem.transform.trn(0, 0, Config.MOVE);
+					currentItem.transform.trn(-Config.MOVE/2, 0, Config.MOVE/2);
 					break;
 				case 1:
 					currentItem.transform.trn(-Config.MOVE, 0, 0);
@@ -542,7 +542,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			if (!moveOut()) {
 				switch (rotate) {
 				case 0:
-					currentItem.transform.trn(Config.MOVE, 0, 0);
+					currentItem.transform.trn(Config.MOVE/2, 0, Config.MOVE/2);
 					break;
 				case 1:
 					currentItem.transform.trn(0, 0, Config.MOVE);
@@ -565,7 +565,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			if (!moveOut()) {
 				switch (rotate) {
 				case 0:
-					currentItem.transform.trn(-Config.MOVE, 0, 0);
+					currentItem.transform.trn(-Config.MOVE/2, 0, -Config.MOVE/2);
 					break;
 				case 1:
 					currentItem.transform.trn(0, 0, -Config.MOVE);
@@ -688,7 +688,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		switch (keycode) {
 		case Keys.LEFT: {
 			while (i < currentItemCorners.length) {
-				currentItemCorners[i].z -= Config.MOVE;
+				currentItemCorners[i].z -= Config.STEP;
+				currentItemCorners[i].x += Config.STEP;
 				i++;
 			}
 
@@ -696,7 +697,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		}
 		case Keys.RIGHT: {
 			while (i < currentItemCorners.length) {
-				currentItemCorners[i].z += Config.MOVE;
+				currentItemCorners[i].z += Config.STEP;
+				currentItemCorners[i].x -= Config.STEP;
 				i++;
 			}
 
@@ -704,7 +706,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		}
 		case Keys.UP: {
 			while (i < currentItemCorners.length) {
-				currentItemCorners[i].x += Config.MOVE;
+				currentItemCorners[i].z += Config.STEP;
+				currentItemCorners[i].x += Config.STEP;
 				i++;
 			}
 
@@ -712,7 +715,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		}
 		case Keys.DOWN: {
 			while (i < currentItemCorners.length) {
-				currentItemCorners[i].x -= Config.MOVE;
+				currentItemCorners[i].z -= Config.STEP;
+				currentItemCorners[i].x -= Config.STEP;
 				i++;
 			}
 
@@ -728,10 +732,19 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		while (i < groundCorners.length) {
 			j = 0;
 			while (j < currentItemCorners.length) {
-				if (Math.abs(groundCorners[i].x) < Math
-						.abs(currentItemCorners[j].x)
-						|| Math.abs(groundCorners[i].z) < Math
-								.abs(currentItemCorners[j].z)) {
+				if ((groundCorners[i].x > 0 && currentItemCorners[j].x > 0) && groundCorners[i].x < currentItemCorners[j].x) {
+					return true;
+				}
+				
+				if ((groundCorners[i].x < 0 && currentItemCorners[j].x < 0) && groundCorners[i].x >= currentItemCorners[j].x) {
+					return true;
+				}
+				
+				if ((groundCorners[i].z > 0 && currentItemCorners[j].z > 0) && groundCorners[i].z < currentItemCorners[j].z) {
+					return true;
+				}
+				
+				if ((groundCorners[i].z < 0 && currentItemCorners[j].z < 0) && groundCorners[i].z >= currentItemCorners[j].z) {
 					return true;
 				}
 				j++;

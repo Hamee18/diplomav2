@@ -13,8 +13,9 @@ public class DesktopLauncher {
 //		cfg.useGL30 = true;
 		cfg.resizable = false;
 				
-		cfg.fullscreen = true;
-//		cfg.foregroundFPS = 60;
+//		cfg.fullscreen = true;
+		cfg.foregroundFPS = 60;
+		cfg.vSyncEnabled = true;
 
 	    new LwjglApplication(new Root(), cfg);
 	}

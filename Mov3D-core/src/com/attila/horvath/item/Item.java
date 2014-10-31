@@ -34,8 +34,8 @@ public class Item extends ModelInstance implements RenderableProvider, Disposabl
 
 	private void setBasics() {
 //		this.transform.trn(-Config.MOVE / 2, 154, -Config.MOVE / 2);
-		this.transform.trn(Config.MOVE / 2, 130, 0);
-		this.transform.rotate(0, 1, 0, 135);
+		this.transform.trn(0, 142f, 0);
+		this.transform.rotate(0, 1, 0, 45);
 		body.setWorldTransform(this.transform);
 		body.setCollisionFlags(body.getCollisionFlags()
 				| btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
@@ -96,7 +96,7 @@ public class Item extends ModelInstance implements RenderableProvider, Disposabl
 		private final Model model;
 
 		public Constructor(String obj) {
-			model = assets.getAsset("obj/" + obj + ".g3db");
+			model = assets.getAsset("obj/" + obj + ".g3dj");
 			model.getMaterial("Material").set(
 					ColorAttribute.createDiffuse(colors[randomColor
 							.nextInt(colors.length - 1)]));

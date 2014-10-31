@@ -27,7 +27,7 @@ public class Ground extends ModelInstance implements RenderableProvider,
 
 	private void setBasics() {
 		this.transform.trn(0, -80, 0);
-		this.transform.rotate(0, 1, 0, 135);
+		this.transform.rotate(0, 1, 0, 45);
 		body.setWorldTransform(this.transform);
 		body.setCollisionFlags(body.getCollisionFlags()
 				| btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
@@ -78,7 +78,7 @@ public class Ground extends ModelInstance implements RenderableProvider,
 		private final Model model;
 
 		public Constructor() {
-			model = assets.getAsset("obj/Ground.g3db");
+			model = assets.getAsset("obj/Ground.g3dj");
 		}
 
 		private static btConvexHullShape createConvexHullShape(

@@ -61,9 +61,9 @@ public class WindowsGameScreen implements Screen{
 		assets.getSprite().draw(batch);
 		batch.end();
 				
-//		batchNext.begin();
-//		batchNext.draw(assets.getNextObjectRegion(), 50, Config.HEIGHT - 190);
-//		batchNext.end();
+		batchNext.begin();
+		batchNext.draw(assets.getNextObject(), 50, Config.HEIGHT - 190);
+		batchNext.end();
 		
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		
