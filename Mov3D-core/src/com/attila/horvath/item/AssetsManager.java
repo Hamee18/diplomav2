@@ -9,13 +9,20 @@ public class AssetsManager {
 	
 	public AssetsManager() {
 		try {
-//			assets.load("obj/cube.g3db", Model.class);
-			assets.load("obj/I.g3dj", Model.class);
-			assets.load("obj/L.g3dj", Model.class);
-			assets.load("obj/O.g3dj", Model.class);
-			assets.load("obj/T.g3dj", Model.class);
-			assets.load("obj/Z.g3dj", Model.class);
-			assets.load("obj/Ground.g3dj", Model.class);
+			assets.load("obj/cube.g3dj", Model.class);
+			assets.load("obj/1.g3dj", Model.class);
+			assets.load("obj/2.g3dj", Model.class);
+			assets.load("obj/3.g3dj", Model.class);
+			assets.load("obj/4.g3dj", Model.class);
+			assets.load("obj/5.g3dj", Model.class);
+			assets.load("obj/easy/1.g3dj", Model.class);
+			assets.load("obj/easy/2.g3dj", Model.class);
+			assets.load("obj/easy/3.g3dj", Model.class);
+			assets.load("obj/easy/4.g3dj", Model.class);
+			assets.load("obj/easy/5.g3dj", Model.class);
+			assets.load("obj/groundEasy.g3dj", Model.class);
+			assets.load("obj/groundMedium.g3dj", Model.class);
+			assets.load("obj/groundHard.g3dj", Model.class);
 			assets.finishLoading();
 		} catch (Exception e) {
 			Gdx.app.log("asset:", e.toString());

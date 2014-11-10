@@ -36,9 +36,6 @@ import com.badlogic.gdx.utils.Array;
 
 public class AndroidGameScreen implements Screen{
 
-	private final static short GROUND_FLAG = 1 << 8;
-//	private final static short OBJECT_FLAG = 1 << 9;
-	private final static short ALL_FLAG = -1;
 	private final static float WIDTH = Gdx.graphics.getWidth();
 	private final static float HEIGHT = Gdx.graphics.getHeight();
 	private final static String[] objects = { "I", "I", "O", "T", "T" };
@@ -107,10 +104,7 @@ public class AndroidGameScreen implements Screen{
 			worldEnv = new GameEnvironment();
 			currentItem = (new Item.Constructor(actObj)).construct();
 			currentItem.setMoving(true);
-			currentItem.setUserValue(instances.size);
 			instances.add(currentItem);
-			collisionWorld.addCollisionObject(currentItem.getBody(),
-					GROUND_FLAG, ALL_FLAG);
 			spawnTimer = 0.3f;
 		} catch (Exception e) {
 			Gdx.app.log(null, e.toString());
@@ -165,10 +159,7 @@ public class AndroidGameScreen implements Screen{
 					String actObj = objects[random.nextInt(objects.length)];
 					currentItem = (new Item.Constructor(actObj)).construct();
 					currentItem.setMoving(true);
-					currentItem.setUserValue(instances.size);
 					instances.add(currentItem);
-					collisionWorld.addCollisionObject(currentItem.getBody(),
-							GROUND_FLAG, ALL_FLAG);
 
 					collision = false;
 				}
@@ -251,7 +242,6 @@ public class AndroidGameScreen implements Screen{
 		(Gdx.input.getAccelerometerY() < (zeroY + 1))) {
 			
 			currentItem.transform.rotate(1, 0, 0, 90);
-			currentItem.setWordTransform();
 			
 			moveLeft = false;
 			moveUp = false;

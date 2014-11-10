@@ -5,6 +5,7 @@ import com.attila.horvath.config.Config;
 import com.attila.horvath.mov3d.Root;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -22,6 +23,7 @@ public class WindowsGameScreen implements Screen{
 	private SpriteBatch spriteBatch;
 	private ModelBatch shadowBatch;
 	private DirectionalShadowLight shadowLight;
+	private FPSLogger fps;
 	
 	private WindowsGameScreenAssets assets;
 	
@@ -31,10 +33,11 @@ public class WindowsGameScreen implements Screen{
 		assets = new WindowsGameScreenAssets(this.root, this);
 		shadowBatch = assets.getWorldEnv().getShadowBatch();
 		shadowLight = assets.getWorldEnv().getShadowLight();
-		spawnTimer = 1f;
+		spawnTimer = 0.3f;
+		
+		fps = new FPSLogger();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void render(float delta) {
 		final float d = Math.min(1f / 30f, Gdx.graphics.getDeltaTime());
@@ -42,7 +45,7 @@ public class WindowsGameScreen implements Screen{
 		if ((spawnTimer -= d) < 0) {
 			assets.checkCollision();
 			assets.moveObjects();
-			spawnTimer = 1f;
+			spawnTimer = 0.3f;
 		}
 		
 		Gdx.gl.glViewport(0, 0, (int)Config.WIDTH, (int)Config.HEIGHT);
@@ -74,10 +77,12 @@ public class WindowsGameScreen implements Screen{
 		
 
 		modelBatch.begin(assets.getWorldCamera().getCamera());
+		modelBatch.render(assets.getCurrentItem().getCubeInstances(), assets.getWorldEnv().getEnvironment());
 		modelBatch.render(assets.getGround(), assets.getWorldEnv().getEnvironment());
 		modelBatch.render(assets.getInstances(), assets.getWorldEnv().getEnvironment());
 		modelBatch.end();
 
+		fps.log();
 	}
 
 	@Override

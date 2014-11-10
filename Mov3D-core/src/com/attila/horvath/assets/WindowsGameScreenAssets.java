@@ -7,6 +7,9 @@ import com.attila.horvath.config.Config;
 import com.attila.horvath.game.GameCamera;
 import com.attila.horvath.game.GameEnvironment;
 import com.attila.horvath.game.screen.WindowsGameScreen;
+import com.attila.horvath.gamelogic.CubeMatrix;
+import com.attila.horvath.gamelogic.WorldMatrix;
+import com.attila.horvath.item.Cube;
 import com.attila.horvath.item.Ground;
 import com.attila.horvath.item.Item;
 import com.attila.horvath.mov3d.Root;
@@ -23,16 +26,8 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.ContactListener;
-import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
-import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
-import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
-import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -45,32 +40,21 @@ import com.badlogic.gdx.utils.I18NBundle;
 
 public class WindowsGameScreenAssets implements InputProcessor {
 
-	private final static short GROUND_FLAG = 1 << 8;
-//	private final static short OBJECT_FLAG = 1 << 9;
-	private final static short ALL_FLAG = -1;
-
 	private Root root;
 	private WindowsGameScreen gameScreen;
 	private GameCamera worldCamera;
 	private GameEnvironment worldEnv;
 	private Ground ground;
 	private Item currentItem;
-	private Array<Item> instances;
-	private boolean collision = false;
-	private ArrayList<Integer> collID;
-	private Vector3[] groundCorners, currentItemCorners;
-	private Vector3 cameraRotation;
-	private final static String[] objects = { "Z", "Z", "Z", "Z", "Z" };
+	private Array<Cube> instances;
+	private final static String[] objects = { "1", "2", "3", "4", "5" };
 	private static Random random = new Random();
-	private String actObj = "";
-
-	// Collision detection
-	private btCollisionWorld collisionWorld;
-	private btCollisionConfiguration collisionConfig;
-	private btDispatcher dispatcher;
-	private MyContactListener contactListener;
-	private btBroadphaseInterface broadphase;
-	private int rotate = 0;
+	private String actObj = "", nextObj = "3";
+	private Vector3 middlePoint;
+	private WorldMatrix worldMatrix;
+	private CubeMatrix cubeMatrix;
+	private int X, Y, Z, scorePoint;
+	private boolean canMove;
 
 	// Buttons and UI
 	private Stage stage;
@@ -83,31 +67,17 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	private Label score, nextItem, point;
 	private Texture nextObject;
 	private TextureRegion nextObjectRegion;
-	
+
 	// Preferences
 	private FileHandle baseFileHandle;
 	private I18NBundle myBundle;
 	private Preferences preferences;
+	private int difficulty;
 
 	// Background
 	private OrthographicCamera camera;
 	private Sprite sprite;
 	private Texture texture;
-
-	class MyContactListener extends ContactListener {
-		@Override
-		public boolean onContactAdded(int userValue0, int partId0, int index0,
-				int userValue1, int partId1, int index1) {
-			instances.get(userValue1 - 1).setMoving(false);
-
-			if (!collID.contains(userValue1)) {
-				collID.add(userValue1);
-				collision = true;
-			}
-
-			return true;
-		}
-	}
 
 	public WindowsGameScreenAssets(Root root, WindowsGameScreen gameScreen) {
 		this.root = root;
@@ -117,22 +87,22 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	}
 
 	private void load() {
-		instances = new Array<Item>();
+		scorePoint = 0;
+		instances = new Array<Cube>();
 		loadPreferences();
 
 		arrowAtlas = new TextureAtlas("ui/pack/gamebutton.pack");
 		imageButtonAtlas = new TextureAtlas("ui/pack/imagegamebutton.pack");
 		arrowSkin = new Skin(Gdx.files.internal("ui/json/arrowGameSkin.json"),
 				arrowAtlas);
-		imageButtonSkin = new Skin(Gdx.files.internal("ui/json/turnGameSkin.json"),
+		imageButtonSkin = new Skin(
+				Gdx.files.internal("ui/json/turnGameSkin.json"),
 				imageButtonAtlas);
-		
-		cameraRotation = new Vector3();
+
 		nextObjectRegion = new TextureRegion();
-		
+
 		try {
 			worldCamera = new GameCamera();
-			worldCamera.getCamera().projection.getTranslation(cameraRotation);
 			worldEnv = new GameEnvironment();
 		} catch (Exception e) {
 			Gdx.app.log(null, e.toString());
@@ -144,67 +114,48 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		stage.clear();
 
 		loadBackground();
-		loadBullet();
 		loadGround();
+		setDimension();
 		loadLabel();
 		loadObject();
 		if (preferences.getBoolean("keyboard")) {
 			loadComponents();
 		}
-		
-		collID = new ArrayList<Integer>();
+
+		worldMatrix = new WorldMatrix(X, Y, Z);
+		cubeMatrix = new CubeMatrix(X, Y, Z);
 		setInputProcessors();
 	}
 
 	private void loadPreferences() {
 		preferences = Gdx.app.getPreferences("tetris3d.settings");
-		
+
 		String displayLang = preferences.getString("display", "");
-		
+
 		if (displayLang == "") {
 			baseFileHandle = Gdx.files.internal("ui/localization/magyar");
 		} else {
-			baseFileHandle = Gdx.files.internal("ui/localization/" + displayLang);
+			baseFileHandle = Gdx.files.internal("ui/localization/"
+					+ displayLang);
 		}
-		
+
 		myBundle = I18NBundle.createBundle(baseFileHandle, "UTF8");
-	}
-	
-	private void loadBullet() {
-		// Bullet inicializálása
-		Bullet.init();
-		collisionConfig = new btDefaultCollisionConfiguration();
-		dispatcher = new btCollisionDispatcher(collisionConfig);
-		broadphase = new btDbvtBroadphase();
-		collisionWorld = new btCollisionWorld(dispatcher, broadphase,
-				collisionConfig);
-		contactListener = new MyContactListener();
 	}
 
 	private void loadGround() {
-		ground = (new Ground.Constructor()).construct();
-		ground.setUserValue(instances.size);
-		collisionWorld.addCollisionObject(ground.getBody(), GROUND_FLAG,
-				ALL_FLAG);
-		groundCorners = ground.getCorners();
+		difficulty = preferences.getInteger("difficulty");
+
+		ground = (new Ground.Constructor(difficulty)).construct();
 	}
 
 	private void loadObject() {
-		if (actObj == "") {
-			currentItem = (new Item.Constructor(objects[random.nextInt(objects.length)])).construct();
-		} else {
-			currentItem = (new Item.Constructor(actObj)).construct();
-		}
-		
+		currentItem = (new Item.Constructor(nextObj)).construct();
 		currentItem.setMoving(true);
-		currentItem.setUserValue(instances.size + 1);
-		instances.add(currentItem);
-		collisionWorld.addCollisionObject(currentItem.getBody(), GROUND_FLAG,
-				ALL_FLAG);
-		currentItemCorners = currentItem.getCorners();
-		
-		actObj = objects[random.nextInt(objects.length)];
-		nextObject = new Texture(Gdx.files.internal("ui/objects/" + actObj + ".png"));
+		actObj = nextObj;
+		middlePoint = new Vector3(0, 0, 0);
+
+		nextObj = objects[random.nextInt(objects.length)];
+		nextObject = new Texture(Gdx.files.internal("ui/objects/" + nextObj + ".png"));
 		nextObjectRegion = new TextureRegion(nextObject, 0, 0, 100, 100);
 		nextObjectRegion.flip(false, false);
 	}
@@ -215,14 +166,14 @@ public class WindowsGameScreenAssets implements InputProcessor {
 
 		texture = new Texture(Gdx.files.internal("ui/background.png"));
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		TextureRegion region = new TextureRegion(texture, 0, 0, (int)Config.WIDTH,
-				(int)Config.HEIGHT);
+		TextureRegion region = new TextureRegion(texture, 0, 0,
+				(int) Config.WIDTH, (int) Config.HEIGHT);
 		sprite = new Sprite(region);
 		sprite.setSize(1f, 1f * sprite.getHeight() / sprite.getWidth());
 		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
 	}
-	
+
 	private void loadLabel() {
 		score = new Label(myBundle.get("score"), arrowSkin);
 		score.setPosition(Config.WIDTH - 155, Config.HEIGHT - 125);
@@ -274,14 +225,15 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		styleP.up = imageButtonSkin.getDrawable("pause");
 		styleP.down = imageButtonSkin.getDrawable("pauseClick");
 		pauseButton = new TextButton("", styleP);
-		pauseButton.setPosition(Config.WIDTH - pauseButton.getWidth() - 45, Config.HEIGHT - pauseButton.getHeight() - 45);
+		pauseButton.setPosition(Config.WIDTH - pauseButton.getWidth() - 45,
+				Config.HEIGHT - pauseButton.getHeight() - 45);
 		pauseButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				root.setScreen(new PauseScreen(root, gameScreen));
 			}
 		});
-		
+
 		TextButtonStyle style = new TextButtonStyle();
 		style.font = imageButtonSkin.getFont("black");
 		style.up = imageButtonSkin.getDrawable("turnLeft");
@@ -376,6 +328,31 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		stage.addActor(turnRightZ);
 	}
 
+	private void setDimension() {
+		switch (difficulty) {
+		case 0:
+			X = Config.WXE;
+			Y = Config.WYE;
+			Z = Config.WZE;
+			break;
+		case 1:
+			X = Config.WXM;
+			Y = Config.WYM;
+			Z = Config.WZM;
+			break;
+		case 2:
+			X = Config.WXH;
+			Y = Config.WYH;
+			Z = Config.WZH;
+			break;
+		default:
+			X = Config.WXE;
+			Y = Config.WYE;
+			Z = Config.WZE;
+			break;
+		}
+	}
+
 	public void setInputProcessors() {
 		InputProcessor keyboard = this;
 		InputProcessor buttons = stage;
@@ -387,20 +364,338 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	}
 
 	public void checkCollision() {
-		if (collision) {
+		if (isCollision()) {
+			currentItem.setMoving(false);
+
 			loadObject();
-			collision = false;
+		}
+	}
+
+	private boolean isCollision() {
+		int x, y, z, gap = (X - 1) / 2;
+		int[][][] objectMatrix = currentItem.getObjectMatrix()
+				.getObjectMatrix();
+		int[][][] worldMatrix = this.worldMatrix.getWorldMatrix();
+
+		if ((int) middlePoint.x < 0) {
+			x = (int) middlePoint.x + gap;
 		} else {
-			collisionWorld.performDiscreteCollisionDetection();
+			x = (int) middlePoint.x + gap;
+		}
+
+		y = Math.abs((int) middlePoint.y);
+
+		if ((int) middlePoint.z < 0) {
+			z = (int) middlePoint.z + gap;
+		} else {
+			z = (int) middlePoint.z + gap;
+		}
+
+		int wX = x - 1, wY = y, wZ = z - 1;
+
+		if (wY == 17) {
+			for (int i = 0; i < Config.X; i++) {
+				for (int k = 0; k < Config.Z; k++) {
+					if (((wX + i) >= 0 && (wX + i) < X)
+							&& ((wZ + k) >= 0 && (wZ + k) < Z)) {
+						if ((worldMatrix[wX + i][wY][wZ + k] == 1 && objectMatrix[i][Config.Y - 1][k] == 1)
+								|| (worldMatrix[wX + i][wY][wZ + k] == 1 && objectMatrix[i][Config.Y - 2][k] == 1)) {
+							setWorldMatrix(wX, wY, wZ, objectMatrix,
+									worldMatrix);
+
+							return true;
+						}
+					}
+				}
+			}
+
+			currentItem.setObjectPosition();
+			setWorldMatrix(wX, wY, wZ, objectMatrix, worldMatrix);
+
+			return true;
+		}
+
+		if (x >= 0 && y >= 0 && z >= 0) {
+			for (int i = 0; i < Config.X; i++) {
+				for (int j = 0; j < Config.Y; j++) {
+					for (int k = 0; k < Config.Z; k++) {
+						if ((y - j > 0) && ((wX + i) >= 0 && (wX + i) < X)
+								&& ((wZ + k) >= 0 && (wZ + k) < Z)) {
+							if (worldMatrix[wX + i][wY - j + 1][wZ + k] == 1
+									&& objectMatrix[i][Config.Y - j - 1][k] == 1) {
+								setWorldMatrix(wX, wY, wZ, objectMatrix,
+										worldMatrix);
+
+								return true;
+							}
+						}
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private void setWorldMatrix(int x, int y, int z, int[][][] objectMatrix,
+			int[][][] worldMatrix) {
+		float cubeX, cubeY, cubeZ;
+		int gap = (X - 1) / 2;
+		Cube cubeMatrix[][][] = this.cubeMatrix.getCubeMatrix();
+
+		for (int i = 0; i < Config.X; i++) {
+			for (int j = 0; j < Config.Y; j++) {
+				for (int k = 0; k < Config.Z; k++) {
+
+					if ((y - j > 0) && ((x + i) >= 0 && (x + i) < X)
+							&& ((z + k) >= 0 && (z + k) < Z)) {
+						if (objectMatrix[i][j][k] == 1) {
+							worldMatrix[x + i][y - Config.Y + j + 1][z + k] = objectMatrix[i][j][k];
+							Cube tempCube = (new Cube.Constructor())
+									.construct();
+
+							cubeZ = (x - gap) * 12 + (i * 12);
+							cubeX = (z - gap) * 12 + (k * 12);
+							cubeY = (y - Config.Y + j + 1) * -12;
+
+							tempCube.transform.translate(-cubeX, cubeY - 12,
+									cubeZ);
+							tempCube.materials
+									.get(0)
+									.set(ColorAttribute
+											.createDiffuse(Config.colors[Integer
+													.parseInt(actObj) - 1]));
+							cubeMatrix[x + i][y - Config.Y + j + 1][z + k] = tempCube;
+						}
+					}
+				}
+			}
+		}
+
+		this.worldMatrix.setWorldMatrix(worldMatrix);
+		this.cubeMatrix.setCubeMatrix(cubeMatrix);
+		instances.clear();
+		instances = this.cubeMatrix.getInstances();
+
+		Gdx.app.log("WorldMatrix", this.worldMatrix.toString());
+		Gdx.app.log("CubeMatrix", this.cubeMatrix.toString());
+
+		checkRows();
+	}
+
+	private void checkRows() {
+		int i, j, k;
+		int[][][] worldMatrix;
+		ArrayList<Integer> fullRowArray = new ArrayList<Integer>();
+		boolean isFull = true;
+
+		worldMatrix = this.worldMatrix.getWorldMatrix();
+		fullRowArray.clear();
+
+		i = Y - 1;
+		while (i >= 0) {
+			isFull = true;
+			j = 0;
+			while (j < Z && isFull) {
+				k = 0;
+				while (k < X && isFull) {
+					if (worldMatrix[j][i][k] != 1) {
+						isFull = false;
+					}
+					k++;
+				}
+				j++;
+			}
+
+			if (isFull) {
+				fullRowArray.add(i);
+			}
+
+			i--;
+		}
+
+		if (!fullRowArray.isEmpty()) {
+			this.worldMatrix.translateWorldMatrix(fullRowArray);
+			cubeMatrix.translateCubeMatrix(fullRowArray);
+			instances.clear();
+			instances = this.cubeMatrix.getInstances();
+
+			point.setText(String.valueOf(scorePoint += 100));
 		}
 	}
 
 	public void moveObjects() {
-		for (Item i : instances) {
-			if (i.getMoving()) {
-				i.setTransform(12f);
+		currentItem.setTransform(Config.STEP);
+		currentItem.setCubeInstances();
+		setBoundingBox(-1);
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+
+		switch (keycode) {
+		case Keys.CONTROL_LEFT:
+
+			this.worldMatrix.rotateWorldMatrix();
+			this.cubeMatrix.rotateCubeMatrix(this.worldMatrix.getWorldMatrix(),
+					actObj);
+
+			instances.clear();
+			instances = this.cubeMatrix.getInstances();
+			
+			break;
+		case Keys.LEFT:
+			setBoundingBox(Keys.LEFT);
+
+			if (!moveOut()) {
+				currentItem.moveCubeInstances(Keys.LEFT);
 			}
+			break;
+		case Keys.RIGHT:
+			setBoundingBox(Keys.RIGHT);
+
+			if (!moveOut()) {
+				currentItem.moveCubeInstances(Keys.RIGHT);
+			}
+			break;
+		case Keys.UP:
+			setBoundingBox(Keys.UP);
+
+			if (!moveOut()) {
+				currentItem.moveCubeInstances(Keys.UP);
+			}
+			break;
+		case Keys.DOWN:
+			setBoundingBox(Keys.DOWN);
+
+			if (!moveOut()) {
+				currentItem.moveCubeInstances(Keys.DOWN);
+			}
+			break;
+		case Keys.A:
+			currentItem.rotateObjectMatrix(Keys.A);
+			currentItem.rotateCubeMatrix(middlePoint.y);
+			middlePoint.x = 0;
+			middlePoint.z = 0;
+
+			break;
+		case Keys.D:
+			currentItem.rotateObjectMatrix(Keys.D);
+			currentItem.rotateCubeMatrix(middlePoint.y);
+			middlePoint.x = 0;
+			middlePoint.z = 0;
+
+			break;
+		case Keys.W:
+			currentItem.rotateObjectMatrix(Keys.W);
+			currentItem.rotateCubeMatrix(middlePoint.y);
+			middlePoint.x = 0;
+			middlePoint.z = 0;
+
+			break;
+		case Keys.S:
+			currentItem.rotateObjectMatrix(Keys.S);
+			currentItem.rotateCubeMatrix(middlePoint.y);
+			middlePoint.x = 0;
+			middlePoint.z = 0;
+
+			break;
+		case Keys.Q:
+			currentItem.rotateObjectMatrix(Keys.Q);
+			currentItem.rotateCubeMatrix(middlePoint.y);
+			middlePoint.x = 0;
+			middlePoint.z = 0;
+
+			break;
+		case Keys.E:
+			currentItem.rotateObjectMatrix(Keys.E);
+			currentItem.rotateCubeMatrix(middlePoint.y);
+			middlePoint.x = 0;
+			middlePoint.z = 0;
+
+			break;
+		case Keys.ESCAPE:
+			root.setScreen(new PauseScreen(root, gameScreen));
+			break;
 		}
+
+		return true;
+	}
+
+	private void setBoundingBox(int keycode) {
+		int limit = ((X - 1) / 2) - 1;
+
+		switch (keycode) {
+		case Keys.LEFT: {
+			if (middlePoint.z > -limit) {
+				middlePoint.z -= 1;
+				canMove = true;
+			} else if (middlePoint.z == -limit
+					&& currentItem.checkBound(Keys.LEFT)) {
+				middlePoint.z -= 1;
+				canMove = true;
+			} else {
+				canMove = false;
+			}
+
+			break;
+		}
+		case Keys.RIGHT: {
+			if (middlePoint.z < limit) {
+				middlePoint.z += 1;
+				canMove = true;
+			} else if (middlePoint.z == limit
+					&& currentItem.checkBound(Keys.RIGHT)) {
+				middlePoint.z += 1;
+				canMove = true;
+			} else {
+				canMove = false;
+			}
+
+			break;
+		}
+		case Keys.UP: {
+			if (middlePoint.x < limit) {
+				middlePoint.x += 1;
+				canMove = true;
+			} else if (middlePoint.x == limit
+					&& currentItem.checkBound(Keys.UP)) {
+				middlePoint.x += 1;
+				canMove = true;
+			} else {
+				canMove = false;
+			}
+
+			break;
+		}
+		case Keys.DOWN: {
+			if (middlePoint.x > -limit) {
+				middlePoint.x -= 1;
+				canMove = true;
+			} else if (middlePoint.x == -limit
+					&& currentItem.checkBound(Keys.DOWN)) {
+				middlePoint.x -= 1;
+				canMove = true;
+			} else {
+				canMove = false;
+			}
+
+			break;
+		}
+		case -1:
+			middlePoint.y -= 1;
+
+			break;
+		}
+	}
+
+	private boolean moveOut() {
+		if (!canMove) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public GameCamera getWorldCamera() {
@@ -414,7 +709,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	public Sprite getSprite() {
 		return sprite;
 	}
-	
+
 	public Texture getNextObject() {
 		return nextObject;
 	}
@@ -431,7 +726,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		return currentItem;
 	}
 
-	public Array<Item> getInstances() {
+	public Array<Cube> getInstances() {
 		return instances;
 	}
 
@@ -440,319 +735,10 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	}
 
 	public void dispose() {
-		for (Item item : instances) {
-			item.dispose();
+		for (Cube cube : instances) {
+			cube.dispose();
 		}
 		instances.clear();
-
-		collisionWorld.dispose();
-		broadphase.dispose();
-		dispatcher.dispose();
-		collisionConfig.dispose();
-
-		contactListener.dispose();
-
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		switch (keycode) {
-		case Keys.CONTROL_LEFT:
-			worldCamera.getCamera().rotate(-90, 0, 1, 0);
-
-			switch (rotate) {
-			case 0:
-				worldCamera.getCamera().position.set(0,
-						Gdx.graphics.getHeight() / 5,
-						-1 * (Gdx.graphics.getHeight() / 1.8f));
-				break;
-			case 1:
-				worldCamera.getCamera().position.set(
-						Gdx.graphics.getHeight() / 1.8f,
-						Gdx.graphics.getHeight() / 5, 0);
-				break;
-			case 2:
-				worldCamera.getCamera().position.set(0,
-						Gdx.graphics.getHeight() / 5,
-						Gdx.graphics.getHeight() / 1.8f);
-				break;
-			case 3:
-				worldCamera.getCamera().position.set(
-						-1 * (Gdx.graphics.getHeight() / 1.8f),
-						Gdx.graphics.getHeight() / 5, 0);
-				break;
-			}
-			worldCamera.getCamera().update();
-			worldCamera.getCamera().projection.getTranslation(cameraRotation);
-			if (rotate < 3) {
-				rotate++;
-			} else {
-				rotate = 0;
-			}
-			break;
-		case Keys.LEFT:
-			setBoundingBox(Keys.LEFT);
-
-			if (!moveOut()) {
-				switch (rotate) {
-				case 0:
-					currentItem.transform.trn(Config.MOVE/2, 0, -Config.MOVE/2);
-					break;
-				case 1:
-					currentItem.transform.trn(Config.MOVE, 0, 0);
-					break;
-				case 2:
-					currentItem.transform.trn(0, 0, Config.MOVE);
-					break;
-				case 3:
-					currentItem.transform.trn(-Config.MOVE, 0, 0);
-					break;
-				}
-				currentItem.setWordTransform();
-			} else {
-				setBoundingBox(Keys.RIGHT);
-			}
-			break;
-		case Keys.RIGHT:
-			setBoundingBox(Keys.RIGHT);
-
-			if (!moveOut()) {
-				switch (rotate) {
-				case 0:
-					currentItem.transform.trn(-Config.MOVE/2, 0, Config.MOVE/2);
-					break;
-				case 1:
-					currentItem.transform.trn(-Config.MOVE, 0, 0);
-					break;
-				case 2:
-					currentItem.transform.trn(0, 0, -Config.MOVE);
-					break;
-				case 3:
-					currentItem.transform.trn(Config.MOVE, 0, 0);
-					break;
-				}
-				currentItem.setWordTransform();
-			} else {
-				setBoundingBox(Keys.LEFT);
-			}
-			break;
-		case Keys.UP:
-			setBoundingBox(Keys.UP);
-
-			if (!moveOut()) {
-				switch (rotate) {
-				case 0:
-					currentItem.transform.trn(Config.MOVE/2, 0, Config.MOVE/2);
-					break;
-				case 1:
-					currentItem.transform.trn(0, 0, Config.MOVE);
-					break;
-				case 2:
-					currentItem.transform.trn(-Config.MOVE, 0, 0);
-					break;
-				case 3:
-					currentItem.transform.trn(0, 0, -Config.MOVE);
-					break;
-				}
-				currentItem.setWordTransform();
-			} else {
-				setBoundingBox(Keys.DOWN);
-			}
-			break;
-		case Keys.DOWN:
-			setBoundingBox(Keys.DOWN);
-
-			if (!moveOut()) {
-				switch (rotate) {
-				case 0:
-					currentItem.transform.trn(-Config.MOVE/2, 0, -Config.MOVE/2);
-					break;
-				case 1:
-					currentItem.transform.trn(0, 0, -Config.MOVE);
-					break;
-				case 2:
-					currentItem.transform.trn(Config.MOVE, 0, 0);
-					break;
-				case 3:
-					currentItem.transform.trn(0, 0, Config.MOVE);
-					break;
-				}
-				currentItem.setWordTransform();
-			} else {
-				setBoundingBox(Keys.UP);
-			}
-			break;
-		case Keys.A:
-			switch (rotate) {
-			case 0: {
-				currentItem.transform.rotate(1, 0, 0, 90);
-				break;
-			}
-			case 1: {
-				currentItem.transform.rotate(0, 0, 1, 90);
-				break;
-			}
-			case 2: {
-				currentItem.transform.rotate(1, 0, 0, -90);
-				break;
-			}
-			case 3: {
-				currentItem.transform.rotate(0, 0, 1, -90);
-				break;
-			}
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.D:
-			switch (rotate) {
-			case 0: {
-				currentItem.transform.rotate(1, 0, 0, -90);
-				break;
-			}
-			case 1: {
-				currentItem.transform.rotate(0, 0, 1, -90);
-				break;
-			}
-			case 2: {
-				currentItem.transform.rotate(1, 0, 0, 90);
-				break;
-			}
-			case 3: {
-				currentItem.transform.rotate(0, 0, 1, 90);
-				break;
-			}
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.W:
-			switch (rotate) {
-			case 0: {
-				currentItem.transform.rotate(0, 0, 1, 90);
-				break;
-			}
-			case 1: {
-				currentItem.transform.rotate(1, 0, 0, -90);
-				break;
-			}
-			case 2: {
-				currentItem.transform.rotate(0, 0, 1, -90);
-				break;
-			}
-			case 3: {
-				currentItem.transform.rotate(1, 0, 0, 90);
-				break;
-			}
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.S:
-			switch (rotate) {
-			case 0: {
-				currentItem.transform.rotate(0, 0, 1, -90);
-				break;
-			}
-			case 1: {
-				currentItem.transform.rotate(1, 0, 0, 90);
-				break;
-			}
-			case 2: {
-				currentItem.transform.rotate(0, 0, 1, 90);
-				break;
-			}
-			case 3: {
-				currentItem.transform.rotate(1, 0, 0, -90);
-				break;
-			}
-			}
-			currentItem.setWordTransform();
-			break;
-		case Keys.Q:
-			currentItem.transform.rotate(0, 1, 0, 90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.E:
-			currentItem.transform.rotate(0, 1, 0, -90);
-			currentItem.setWordTransform();
-			break;
-		case Keys.ESCAPE:
-			root.setScreen(new PauseScreen(root, gameScreen));
-			break;
-		}
-
-		return true;
-	}
-
-	private void setBoundingBox(int keycode) {
-		int i = 0;
-
-		switch (keycode) {
-		case Keys.LEFT: {
-			while (i < currentItemCorners.length) {
-				currentItemCorners[i].z -= Config.STEP;
-				currentItemCorners[i].x += Config.STEP;
-				i++;
-			}
-
-			break;
-		}
-		case Keys.RIGHT: {
-			while (i < currentItemCorners.length) {
-				currentItemCorners[i].z += Config.STEP;
-				currentItemCorners[i].x -= Config.STEP;
-				i++;
-			}
-
-			break;
-		}
-		case Keys.UP: {
-			while (i < currentItemCorners.length) {
-				currentItemCorners[i].z += Config.STEP;
-				currentItemCorners[i].x += Config.STEP;
-				i++;
-			}
-
-			break;
-		}
-		case Keys.DOWN: {
-			while (i < currentItemCorners.length) {
-				currentItemCorners[i].z -= Config.STEP;
-				currentItemCorners[i].x -= Config.STEP;
-				i++;
-			}
-
-			break;
-		}
-		}
-	}
-
-	private boolean moveOut() {
-
-		int i = 0, j = 0;
-
-		while (i < groundCorners.length) {
-			j = 0;
-			while (j < currentItemCorners.length) {
-				if ((groundCorners[i].x > 0 && currentItemCorners[j].x > 0) && groundCorners[i].x < currentItemCorners[j].x) {
-					return true;
-				}
-				
-				if ((groundCorners[i].x < 0 && currentItemCorners[j].x < 0) && groundCorners[i].x >= currentItemCorners[j].x) {
-					return true;
-				}
-				
-				if ((groundCorners[i].z > 0 && currentItemCorners[j].z > 0) && groundCorners[i].z < currentItemCorners[j].z) {
-					return true;
-				}
-				
-				if ((groundCorners[i].z < 0 && currentItemCorners[j].z < 0) && groundCorners[i].z >= currentItemCorners[j].z) {
-					return true;
-				}
-				j++;
-			}
-			i++;
-		}
-
-		return false;
 	}
 
 	@Override

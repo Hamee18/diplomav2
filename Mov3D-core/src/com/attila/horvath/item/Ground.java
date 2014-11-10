@@ -1,106 +1,82 @@
 package com.attila.horvath.item;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape;
-import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
 import com.badlogic.gdx.utils.Disposable;
 
 public class Ground extends ModelInstance implements RenderableProvider,
 		Disposable {
-	private final btCollisionObject body;
 
-	public Ground(Model model, btCollisionShape shape) {
+	private Quaternion rotationGround;
+	
+	public Ground(Model model) {
 		super(model);
-		body = new btCollisionObject();
-		body.setCollisionShape(shape);
 
+		rotationGround = new Quaternion();
 		setBasics();
 	}
 
 	private void setBasics() {
+		rotationGround = this.transform.getRotation(rotationGround, true);
 		this.transform.trn(0, -80, 0);
 		this.transform.rotate(0, 1, 0, 45);
-		body.setWorldTransform(this.transform);
-		body.setCollisionFlags(body.getCollisionFlags()
-				| btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-	}
-
-	public btCollisionObject getBody() {
-		return body;
-	}
-
-	public void setUserValue(int value) {
-		body.setUserValue(value);
 	}
 
 	public Vector3[] getCorners() {
 		BoundingBox box = new BoundingBox();
 		this.calculateBoundingBox(box);
 
-		StringBuilder sb = new StringBuilder();
-		Vector3[] corners = box.getCorners();
-		for(int i = 0; i < corners.length; i++) {
-//			if (corners[i].x > 0) corners[i].x -= Config.MOVE/2;
-//			if (corners[i].z > 0) corners[i].z -= Config.MOVE/2;
-			sb.append("x:" + corners[i].x + " y: " + corners[i].y +
-					" z: " + corners[i].z + "\n");
-		}
-		Gdx.app.log("ground", sb.toString());
-		
 		return box.getCorners();
+	}
+
+	public Vector3 getCenter() {
+		BoundingBox box = new BoundingBox();
+		this.calculateBoundingBox(box);
+
+		return box.getCenter();
+	}
+
+	public Quaternion getRotationGround() {
+		return rotationGround;
 	}
 
 	@Override
 	public void dispose() {
-		body.dispose();
+		this.dispose();
 	}
 
 	public void setTransform(float delta) {
 		this.transform.trn(0, -delta, 0);
-		setWordTransform();
-	}
-
-	public void setWordTransform() {
-		body.setWorldTransform(this.transform);
-
 	}
 
 	public static class Constructor {
 		private final static AssetsManager assets = new AssetsManager();
 		private final Model model;
 
-		public Constructor() {
-			model = assets.getAsset("obj/Ground.g3dj");
-		}
+		public Constructor(int difficulty) {
+			switch (difficulty) {
+			case 0:
+				model = assets.getAsset("obj/groundEasy.g3dj");
+				break;
+			case 1:
+				model = assets.getAsset("obj/groundMedium.g3dj");
+				break;
+			case 2:
+				model = assets.getAsset("obj/groundHard.g3dj");
+				break;
+			default:
+				model = assets.getAsset("obj/groundEasy.g3dj");
+				break;
+			}
 
-		private static btConvexHullShape createConvexHullShape(
-				final Model model, boolean optimize) {
-			final Mesh mesh = model.meshes.get(0);
-			final btConvexHullShape shape = new btConvexHullShape(
-					mesh.getVerticesBuffer(), mesh.getNumVertices(),
-					mesh.getVertexSize());
-			if (!optimize)
-				return shape;
-			// now optimize the shape
-			final btShapeHull hull = new btShapeHull(shape);
-			hull.buildHull(shape.getMargin());
-			final btConvexHullShape result = new btConvexHullShape(hull);
-			// delete the temporary shape
-			shape.dispose();
-			hull.dispose();
-			return result;
 		}
 
 		public Ground construct() {
-			return new Ground(model, createConvexHullShape(model, true));
+			return new Ground(model);
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package com.attila.horvath.game;
 
 import com.attila.horvath.config.Config;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 
+@SuppressWarnings("deprecation")
 public class GameEnvironment {
 	private Environment environment;
 	private DirectionalShadowLight shadowLight;

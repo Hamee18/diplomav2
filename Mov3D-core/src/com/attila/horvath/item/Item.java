@@ -1,11 +1,9 @@
 package com.attila.horvath.item;
 
-import java.util.Random;
-
 import com.attila.horvath.config.Config;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
+import com.attila.horvath.config.ReferenceMatrix;
+import com.attila.horvath.gamelogic.CubeMatrix;
+import com.attila.horvath.gamelogic.ObjectMatrix;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -13,36 +11,28 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape;
-import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 public class Item extends ModelInstance implements RenderableProvider, Disposable {
 
-	private final btCollisionObject body;
 	private boolean moving = false;
+	private ObjectMatrix objectMatrix;
+	private CubeMatrix cubeMatrix;
+	private String obj;
 
-	public Item(Model model, btCollisionShape shape) {
+	public Item(Model model, ObjectMatrix objectMatrix, String obj) {
 		super(model);
-		body = new btCollisionObject();
-		body.setCollisionShape(shape);
-		
+		this.objectMatrix = objectMatrix;
+		this.obj = obj;
+		cubeMatrix = new CubeMatrix(Config.X, Config.Y, Config.Z, objectMatrix.getObjectMatrix(), obj);
 		setBasics();
 	}
 
 	private void setBasics() {
-//		this.transform.trn(-Config.MOVE / 2, 154, -Config.MOVE / 2);
 		this.transform.trn(0, 142f, 0);
 		this.transform.rotate(0, 1, 0, 45);
-		body.setWorldTransform(this.transform);
-		body.setCollisionFlags(body.getCollisionFlags()
-				| btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-	}
-
-	public btCollisionObject getBody() {
-		return body;
+		this.calculateTransforms();
 	}
 
 	public boolean getMoving() {
@@ -53,77 +43,97 @@ public class Item extends ModelInstance implements RenderableProvider, Disposabl
 		this.moving = moving;
 	}
 
-	public void setUserValue(int value) {
-		body.setUserValue(value);
-	}
-
-	@Override
-	public void dispose() {
-		body.dispose();
-	}
-
 	public Vector3[] getCorners() {
+		this.calculateTransforms();
 		BoundingBox box = new BoundingBox();
 		this.calculateBoundingBox(box);
-
-		StringBuilder sb = new StringBuilder();
+		float temp;
+		
 		Vector3[] corners = box.getCorners();
 		for(int i = 0; i < corners.length; i++) {
-			sb.append("x:" + corners[i].x + " y: " + corners[i].y +
-					" z: " + corners[i].z + "\n");
+			temp = corners[i].x;
+			corners[i].x = corners[i].z;
+			corners[i].z = temp;
 		}
-		Gdx.app.log("Item", sb.toString());
 		
-		return box.getCorners();
+		return corners;
+	}
+	
+	public boolean checkBound(int keyCode) {
+		return objectMatrix.checkBound(keyCode);
+	}
+	
+	public void setObjectPosition() {
+		objectMatrix.setObjectPosition();
+	}
+	
+	public ObjectMatrix getObjectMatrix() {
+		return objectMatrix;
+	}
+	
+	public void setCubeInstances() {
+		cubeMatrix.moveCubeMatrix();
+	}
+	
+	public void moveCubeInstances(int keyCode) {
+		cubeMatrix.moveCubeInstances(keyCode);
+	}
+	
+	public void rotateCubeMatrix(float y) {
+		cubeMatrix.rotateCubeMatrix(objectMatrix.getObjectMatrix(), obj, y);
+	}
+	
+	public Array<Cube> getCubeInstances() {
+		return cubeMatrix.getInstances();
+	}
+	
+	public void rotateObjectMatrix(int key) {
+		objectMatrix.rotateMatrix(key);
 	}
 	
 	public void setTransform(float delta) {
 		this.transform.trn(0, -delta, 0);
-		setWordTransform();
-	}
-
-	public void setWordTransform() {
-		body.setWorldTransform(this.transform);
-
 	}
 
 	public static class Constructor {
 		private final static AssetsManager assets = new AssetsManager();
-		private Random randomColor = new Random();
-		private final Color colors[] = { Color.CYAN,
-				Color.GRAY, Color.GREEN, Color.LIGHT_GRAY,
-				Color.ORANGE, Color.PINK, Color.WHITE, Color.YELLOW };
 		private final Model model;
+		private ObjectMatrix objectMatrix;
+		private String obj;
 
 		public Constructor(String obj) {
-			model = assets.getAsset("obj/" + obj + ".g3dj");
-			model.getMaterial("Material").set(
-					ColorAttribute.createDiffuse(colors[randomColor
-							.nextInt(colors.length - 1)]));
-	
-			Gdx.app.log("Mesh num", String.valueOf(model.meshes.size));
-		}
-
-		private static btConvexHullShape createConvexHullShape(
-				final Model model, boolean optimize) {
-			final Mesh mesh = model.meshes.get(0);
-			final btConvexHullShape shape = new btConvexHullShape(
-					mesh.getVerticesBuffer(), mesh.getNumVertices(),
-					mesh.getVertexSize());
-			if (!optimize)
-				return shape;
-			// now optimize the shape
-			final btShapeHull hull = new btShapeHull(shape);
-			hull.buildHull(shape.getMargin());
-			final btConvexHullShape result = new btConvexHullShape(hull);
-			// delete the temporary shape
-			shape.dispose();
-			hull.dispose();
-			return result;
+			model = assets.getAsset("obj/easy/" + obj + ".g3dj");
+			model.calculateTransforms();
+			model.materials.get(0).set(ColorAttribute.createDiffuse(Config.colors[Integer.parseInt(obj)-1]));
+			
+			switch(Integer.parseInt(obj)) {
+				case 1:
+					objectMatrix = new ObjectMatrix(ReferenceMatrix.firstMatrixE);
+					break;
+				case 2:
+					objectMatrix = new ObjectMatrix(ReferenceMatrix.secondMatrixE);
+					break;
+				case 3:
+					objectMatrix = new ObjectMatrix(ReferenceMatrix.thirdMatrixE);
+					break;
+				case 4:
+					objectMatrix = new ObjectMatrix(ReferenceMatrix.fourthMatrixE);
+					break;
+				case 5:
+					objectMatrix = new ObjectMatrix(ReferenceMatrix.fifthMatrixE);
+					break;
+			}
+			
+			this.obj = obj;
 		}
 
 		public Item construct() {
-			return new Item(model, createConvexHullShape(model, true));
+			return new Item(model, objectMatrix, obj);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		this.dispose();
 	}
 }
