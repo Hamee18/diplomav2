@@ -104,42 +104,116 @@ public class CubeMatrix {
 
 	}
 	
-	public void rotateCubeMatrix(int[][][] worldMatrix, String actObj, float yPos) {
+	public void rotateCubeMatrix(int keyCode) {
 		Cube[][][] tempMatrix = new Cube[X][Y][Z];
 		float cubeX, cubeY, cubeZ;
-		int gap = (X - 1) / 2;
-		yPos = yPos+2;
-		
-		for (int i = 0; i < Y; i++) {
-			for (int j = 0; j < X; j++) {
+
+		for (int i = 0; i < X; i++) {
+			for (int j = 0; j < Y; j++) {
 				for (int k = 0; k < Z; k++) {
-					if (worldMatrix[k][i][j] == 1) {
-
-						cubeX = (j - gap) * 12;
-						cubeY = (i - yPos) * -12;
-						cubeZ = (k - gap) * 12;
-
-						tempMatrix[k][i][j] = (new Cube.Constructor())
-								.construct();
-						tempMatrix[k][i][j].materials.get(0).set(
-								ColorAttribute
-										.createDiffuse(Config.colors[Integer
-												.parseInt(actObj) - 1]));
-						tempMatrix[k][i][j].transform.translate(-cubeX,
-								cubeY - 12, cubeZ);
-					}
-					cubeMatrix[k][i][j] = null;
+					tempMatrix[i][j][k] = null;
 				}
 			}
 		}
 
+		switch (keyCode) {
+		case Keys.A:
+			for (int i = 0; i < X; i++) {
+				for (int j = 0; j < Y; j++) {
+					for (int k = 0; k < Z; k++) {
+						tempMatrix[i][(Y-1) - k][j] = cubeMatrix[i][j][k];
+						if (tempMatrix[i][(Y-1) - k][j] != null) {
+							cubeY = (((Y-1) - k)-j) * -12;
+							cubeX = (j-k) * -12;
+							tempMatrix[i][(Y-1) - k][j].transform.translate(cubeX, cubeY, 0);
+						}
+						cubeMatrix[i][j][k] = null;
+					}
+				}
+			}
+
+			break;
+		case Keys.D:
+			for (int i = 0; i < X; i++) {
+				for (int j = 0; j < Y; j++) {
+					for (int k = 0; k < Z; k++) {
+						tempMatrix[i][k][(Z-1) - j] = cubeMatrix[i][j][k];
+						if (tempMatrix[i][k][(Z-1) - j] != null) {
+							cubeY = (k-j) * -12;
+							cubeX = (((Z-1) - j)-k) * -12;
+							tempMatrix[i][k][(Y-1) - j].transform.translate(cubeX, cubeY, 0);
+						}
+						cubeMatrix[i][j][k] = null;
+					}
+				}
+			}
+			break;
+		case Keys.W:
+			for (int i = 0; i < X; i++) {
+				for (int j = 0; j < Y; j++) {
+					for (int k = 0; k < Z; k++) {
+						tempMatrix[(X-1) - k][j][i] = cubeMatrix[j][k][i];
+						if (tempMatrix[(X-1) - k][j][i] != null) {
+							cubeY = (j-k) * -12;
+							cubeZ = (((X-1) - k)-j) * 12;
+							tempMatrix[(X-1) - k][j][i].transform.translate(0, cubeY, cubeZ);
+						}
+						cubeMatrix[j][k][i] = null;
+					}
+				}
+			}
+			break;
+		case Keys.S:
+			for (int i = 0; i < X; i++) {
+				for (int j = 0; j < Y; j++) {
+					for (int k = 0; k < Z; k++) {
+						tempMatrix[k][(Y-1) - j][i] = cubeMatrix[j][k][i];
+						if (tempMatrix[k][(Y-1) - j][i] != null) {
+							cubeY = (((Y-1) - j)-k) * -12;
+							cubeZ = (k-j) * 12;
+							tempMatrix[k][(Y-1) - j][i] .transform.translate(0, cubeY, cubeZ);
+						}
+						cubeMatrix[j][k][i] = null;
+					}
+				}
+			}
+
+			break;
+		case Keys.Q:
+			for (int i = 0; i < Y; i++) {
+				for (int j = 0; j < X; j++) {
+					for (int k = 0; k < Z; k++) {
+						tempMatrix[j][i][(Z-1) - k] = cubeMatrix[k][i][j];
+						if (tempMatrix[j][i][(Z-1) - k] != null) {
+							cubeX = (((Z-1) - k)-j) * -12;
+							cubeZ = (j-k) * 12;
+							tempMatrix[j][i][(Z-1) - k].transform.translate(cubeX, 0, cubeZ);
+						}
+						cubeMatrix[k][i][j] = null;
+					}
+				}
+			}
+
+			break;
+		case Keys.E:
+			for (int i = 0; i < Y; i++) {
+				for (int j = 0; j < X; j++) {
+					for (int k = 0; k < Z; k++) {
+						tempMatrix[(X-1) - j][i][k] = cubeMatrix[k][i][j];
+						if (tempMatrix[(X-1) - j][i][k] != null) {
+							cubeX = (k-j) * -12;
+							cubeZ = (((X-1) - j)-k) * 12;
+							tempMatrix[(X-1) - j][i][k].transform.translate(cubeX, 0, cubeZ);
+						}
+						cubeMatrix[k][i][j] = null;
+					}
+				}
+			}
+
+			break;
+		}
+
 		cubeMatrix = tempMatrix;
-
-		Gdx.app.log("Cube matrix", toString());
-	}
-
-	public void rotateCubeMatrix(int[][][] worldMatrix, String actObj) {
-		this.rotateCubeMatrix(worldMatrix, actObj, -2f);
 	}
 
 	public void translateCubeMatrix(ArrayList<Integer> fullRowArray) {
@@ -151,7 +225,6 @@ public class CubeMatrix {
 				while (((index + 1) < fullRowArray.size())
 						&& (fullRowArray.get(index) == (1 + fullRowArray
 								.get(index + 1)))) {
-					Gdx.app.log("Full", String.valueOf(fullRowArray.get(index)));
 					index++;
 					moveStep++;
 				}
@@ -174,8 +247,6 @@ public class CubeMatrix {
 				}
 			}
 		}
-
-		Gdx.app.log("Cube matrix", toString());
 	}
 
 	public Cube[][][] getCubeMatrix() {
@@ -186,6 +257,21 @@ public class CubeMatrix {
 		this.cubeMatrix = cubeMatrix;
 	}
 
+	public Array<Cube> getInstances() {
+		Array<Cube> instances = new Array<Cube>();
+
+		for (int i = 0; i < X; i++) {
+			for (int j = 0; j < Y; j++) {
+				for (int k = 0; k < Z; k++) {
+					if (cubeMatrix[i][j][k] != null)
+						instances.add(cubeMatrix[i][j][k]);
+				}
+			}
+		}
+
+		return instances;
+	}
+	
 	public String toString() {
 		StringBuilder sb = new StringBuilder("\n");
 
@@ -203,20 +289,5 @@ public class CubeMatrix {
 		}
 
 		return sb.toString();
-	}
-
-	public Array<Cube> getInstances() {
-		Array<Cube> instances = new Array<Cube>();
-
-		for (int i = 0; i < X; i++) {
-			for (int j = 0; j < Y; j++) {
-				for (int k = 0; k < Z; k++) {
-					if (cubeMatrix[i][j][k] != null)
-						instances.add(cubeMatrix[i][j][k]);
-				}
-			}
-		}
-
-		return instances;
 	}
 }

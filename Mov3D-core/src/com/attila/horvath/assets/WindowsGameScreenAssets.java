@@ -47,13 +47,13 @@ public class WindowsGameScreenAssets implements InputProcessor {
 	private Ground ground;
 	private Item currentItem;
 	private Array<Cube> instances;
-	private final static String[] objects = { "1", "2", "3", "4", "5" };
+	private final static String[] objects = { "2", "2", "2", "2", "2" };
 	private static Random random = new Random();
 	private String actObj = "", nextObj = "3";
 	private Vector3 middlePoint;
 	private WorldMatrix worldMatrix;
 	private CubeMatrix cubeMatrix;
-	private int X, Y, Z, scorePoint;
+	private int X, Y, Z, scorePoint, bound;
 	private boolean canMove;
 
 	// Buttons and UI
@@ -124,6 +124,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 
 		worldMatrix = new WorldMatrix(X, Y, Z);
 		cubeMatrix = new CubeMatrix(X, Y, Z);
+		bound = -1;
 		setInputProcessors();
 	}
 
@@ -155,7 +156,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		middlePoint = new Vector3(0, 0, 0);
 
 		nextObj = objects[random.nextInt(objects.length)];
-		nextObject = new Texture(Gdx.files.internal("ui/objects/" + nextObj + ".png"));
+		nextObject = new Texture(Gdx.files.internal("ui/objects/" + nextObj
+				+ ".png"));
 		nextObjectRegion = new TextureRegion(nextObject, 0, 0, 100, 100);
 		nextObjectRegion.flip(false, false);
 	}
@@ -478,8 +480,8 @@ public class WindowsGameScreenAssets implements InputProcessor {
 		instances.clear();
 		instances = this.cubeMatrix.getInstances();
 
-		Gdx.app.log("WorldMatrix", this.worldMatrix.toString());
-		Gdx.app.log("CubeMatrix", this.cubeMatrix.toString());
+//		Gdx.app.log("WorldMatrix", this.worldMatrix.toString());
+//		Gdx.app.log("CubeMatrix", this.cubeMatrix.toString());
 
 		checkRows();
 	}
@@ -536,14 +538,12 @@ public class WindowsGameScreenAssets implements InputProcessor {
 
 		switch (keycode) {
 		case Keys.CONTROL_LEFT:
-
 			this.worldMatrix.rotateWorldMatrix();
-			this.cubeMatrix.rotateCubeMatrix(this.worldMatrix.getWorldMatrix(),
-					actObj);
+			this.cubeMatrix.rotateCubeMatrix(Keys.Q);
 
 			instances.clear();
 			instances = this.cubeMatrix.getInstances();
-			
+
 			break;
 		case Keys.LEFT:
 			setBoundingBox(Keys.LEFT);
@@ -551,6 +551,7 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			if (!moveOut()) {
 				currentItem.moveCubeInstances(Keys.LEFT);
 			}
+
 			break;
 		case Keys.RIGHT:
 			setBoundingBox(Keys.RIGHT);
@@ -574,46 +575,76 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			}
 			break;
 		case Keys.A:
-			currentItem.rotateObjectMatrix(Keys.A);
-			currentItem.rotateCubeMatrix(middlePoint.y);
-			middlePoint.x = 0;
-			middlePoint.z = 0;
-
+			if (currentItem.canRotate(Keys.A, worldMatrix.getWorldMatrix(),
+					middlePoint, X, Y, Z)) {
+				if(bound == -1) {
+					currentItem.rotateCubeMatrix(Keys.A);
+				} else if (enableMove(bound)){
+					currentItem.rotateCubeMatrix(Keys.A);
+					currentItem.moveCubeInstances(bound);
+					setBoundingBox(bound);
+				}		
+			}
 			break;
 		case Keys.D:
-			currentItem.rotateObjectMatrix(Keys.D);
-			currentItem.rotateCubeMatrix(middlePoint.y);
-			middlePoint.x = 0;
-			middlePoint.z = 0;
-
+			if (currentItem.canRotate(Keys.D, worldMatrix.getWorldMatrix(),
+					middlePoint, X, Y, Z)) {
+				if(bound == -1) {
+					currentItem.rotateCubeMatrix(Keys.D);
+				} else if (enableMove(bound)){
+					currentItem.rotateCubeMatrix(Keys.D);
+					currentItem.moveCubeInstances(bound);
+					setBoundingBox(bound);
+				}
+			}
 			break;
 		case Keys.W:
-			currentItem.rotateObjectMatrix(Keys.W);
-			currentItem.rotateCubeMatrix(middlePoint.y);
-			middlePoint.x = 0;
-			middlePoint.z = 0;
-
+			if (currentItem.canRotate(Keys.W, worldMatrix.getWorldMatrix(),
+					middlePoint, X, Y, Z)) {
+				if(bound == -1) {
+					currentItem.rotateCubeMatrix(Keys.W);
+				} else if (enableMove(bound)){
+					currentItem.rotateCubeMatrix(Keys.W);
+					currentItem.moveCubeInstances(bound);
+					setBoundingBox(bound);
+				}
+			}
 			break;
 		case Keys.S:
-			currentItem.rotateObjectMatrix(Keys.S);
-			currentItem.rotateCubeMatrix(middlePoint.y);
-			middlePoint.x = 0;
-			middlePoint.z = 0;
-
+			if (currentItem.canRotate(Keys.S, worldMatrix.getWorldMatrix(),
+					middlePoint, X, Y, Z)) {
+				if(bound == -1) {
+					currentItem.rotateCubeMatrix(Keys.S);
+				} else if (enableMove(bound)){
+					currentItem.rotateCubeMatrix(Keys.S);
+					currentItem.moveCubeInstances(bound);
+					setBoundingBox(bound);
+				}
+			}
 			break;
 		case Keys.Q:
-			currentItem.rotateObjectMatrix(Keys.Q);
-			currentItem.rotateCubeMatrix(middlePoint.y);
-			middlePoint.x = 0;
-			middlePoint.z = 0;
-
+			if (currentItem.canRotate(Keys.Q, worldMatrix.getWorldMatrix(),
+					middlePoint, X, Y, Z)) {
+				if(bound == -1) {
+					currentItem.rotateCubeMatrix(Keys.Q);
+				} else if (enableMove(bound)){
+					currentItem.rotateCubeMatrix(Keys.Q);
+					currentItem.moveCubeInstances(bound);
+					setBoundingBox(bound);
+				}
+			}
 			break;
 		case Keys.E:
-			currentItem.rotateObjectMatrix(Keys.E);
-			currentItem.rotateCubeMatrix(middlePoint.y);
-			middlePoint.x = 0;
-			middlePoint.z = 0;
-
+			if (currentItem.canRotate(Keys.E, worldMatrix.getWorldMatrix(),
+					middlePoint, X, Y, Z)) {
+				if(bound == -1) {
+					currentItem.rotateCubeMatrix(Keys.E);
+				} else if (enableMove(bound)){
+					currentItem.rotateCubeMatrix(Keys.E);
+					currentItem.moveCubeInstances(bound);
+					setBoundingBox(bound);
+				}
+			}
 			break;
 		case Keys.ESCAPE:
 			root.setScreen(new PauseScreen(root, gameScreen));
@@ -628,12 +659,15 @@ public class WindowsGameScreenAssets implements InputProcessor {
 
 		switch (keycode) {
 		case Keys.LEFT: {
-			if (middlePoint.z > -limit) {
+			if (middlePoint.z > -limit && enableMove(Keys.LEFT)) {
 				middlePoint.z -= 1;
+				bound = -1;
 				canMove = true;
 			} else if (middlePoint.z == -limit
-					&& currentItem.checkBound(Keys.LEFT)) {
+					&& currentItem.checkBound(Keys.LEFT)
+					&& enableMove(Keys.LEFT)) {
 				middlePoint.z -= 1;
+				bound = Keys.RIGHT;
 				canMove = true;
 			} else {
 				canMove = false;
@@ -642,12 +676,15 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			break;
 		}
 		case Keys.RIGHT: {
-			if (middlePoint.z < limit) {
+			if (middlePoint.z < limit && enableMove(Keys.RIGHT)) {
 				middlePoint.z += 1;
+				bound = -1;
 				canMove = true;
 			} else if (middlePoint.z == limit
-					&& currentItem.checkBound(Keys.RIGHT)) {
+					&& currentItem.checkBound(Keys.RIGHT)
+					&& enableMove(Keys.RIGHT)) {
 				middlePoint.z += 1;
+				bound = Keys.LEFT;
 				canMove = true;
 			} else {
 				canMove = false;
@@ -656,12 +693,14 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			break;
 		}
 		case Keys.UP: {
-			if (middlePoint.x < limit) {
+			if (middlePoint.x < limit && enableMove(Keys.UP)) {
 				middlePoint.x += 1;
+				bound = -1;
 				canMove = true;
 			} else if (middlePoint.x == limit
-					&& currentItem.checkBound(Keys.UP)) {
+					&& currentItem.checkBound(Keys.UP) && enableMove(Keys.UP)) {
 				middlePoint.x += 1;
+				bound = Keys.DOWN;
 				canMove = true;
 			} else {
 				canMove = false;
@@ -670,12 +709,15 @@ public class WindowsGameScreenAssets implements InputProcessor {
 			break;
 		}
 		case Keys.DOWN: {
-			if (middlePoint.x > -limit) {
+			if (middlePoint.x > -limit && enableMove(Keys.DOWN)) {
 				middlePoint.x -= 1;
+				bound = -1;
 				canMove = true;
 			} else if (middlePoint.x == -limit
-					&& currentItem.checkBound(Keys.DOWN)) {
+					&& currentItem.checkBound(Keys.DOWN)
+					&& enableMove(Keys.DOWN)) {
 				middlePoint.x -= 1;
+				bound = Keys.UP;
 				canMove = true;
 			} else {
 				canMove = false;
@@ -688,6 +730,138 @@ public class WindowsGameScreenAssets implements InputProcessor {
 
 			break;
 		}
+	}
+
+	private boolean enableMove(int keyCode) {
+		int gap = (X - 1) / 2;
+		int x, y, z;
+		int[][][] objectMatrix = currentItem.getObjectMatrix()
+				.getObjectMatrix();
+		int[][][] worldMatrix = this.worldMatrix.getWorldMatrix();
+
+		if ((int) middlePoint.x < 0) {
+			x = (int) middlePoint.x + gap;
+		} else {
+			x = (int) middlePoint.x + gap;
+		}
+
+		y = Math.abs((int) middlePoint.y);
+
+		if ((int) middlePoint.z < 0) {
+			z = (int) middlePoint.z + gap;
+		} else {
+			z = (int) middlePoint.z + gap;
+		}
+
+		x--;
+		z--;
+
+		switch (keyCode) {
+		case Keys.LEFT:
+			if (x >= 0 && y >= 0 && z >= 0) {
+				for (int i = 0; i < Config.X; i++) {
+					for (int j = 0; j < Config.Y; j++) {
+						if (((y - (Config.Y - 1) + j) < Y && (y
+								- (Config.Y - 1) + j) >= 0)
+								&& ((x + i) >= 0 && ((x + i) < X))
+								&& ((z - 1) >= 0)) {
+							if (currentItem.checkBound(Keys.LEFT)) {
+								if (worldMatrix[x + i][y - (Config.Y - 1) + j][z] == 1
+										&& objectMatrix[i][j][1] == 1) {
+									return false;
+								}
+							} else {
+								if (worldMatrix[x + i][y - (Config.Y - 1) + j][z - 1] == 1
+										&& objectMatrix[i][j][0] == 1) {
+									return false;
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case Keys.RIGHT:
+			if (x >= 0 && y >= 0 && z >= 0) {
+				for (int i = 0; i < Config.X; i++) {
+					for (int j = 0; j < Config.Y; j++) {
+						if (((y - (Config.Y - 1) + j) < Y && (y
+								- (Config.Y - 1) + j) >= 0)
+								&& ((x + i) >= 0 && ((x + i) < X))
+								&& ((z + Config.Z) < Z)) {
+//							Gdx.app.log("X", String.valueOf(x + i));
+//							Gdx.app.log("Z", String.valueOf(z + Config.Z - 1));
+							if (currentItem.checkBound(Keys.RIGHT)) {
+								if (worldMatrix[x + i][y - (Config.Y - 1) + j][z
+										+ Config.Z - 1] == 1
+										&& objectMatrix[i][j][1] == 1) {
+									return false;
+								}
+							} else {
+								if (worldMatrix[x + i][y - (Config.Y - 1) + j][z
+										+ Config.Z] == 1
+										&& objectMatrix[i][j][Config.Z - 1] == 1) {
+									return false;
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case Keys.UP:
+			if (x >= 0 && y >= 0 && z >= 0) {
+				for (int j = 0; j < Config.Y; j++) {
+					for (int k = 0; k < Config.Z; k++) {
+						if (((y - (Config.Y - 1) + j) < Y && (y
+								- (Config.Y - 1) + j) >= 0)
+								&& ((z + k) >= 0 && ((z + k) < Z))) {
+							if (currentItem.checkBound(Keys.UP)) {
+								if (worldMatrix[x + Config.X - 1][y
+										- (Config.Y - 1) + j][z + k] == 1
+										&& objectMatrix[1][j][k] == 1) {
+									return false;
+								}
+							} else {
+								if (worldMatrix[x + Config.X][y
+										- (Config.Y - 1) + j][z + k] == 1
+										&& objectMatrix[Config.X - 1][j][k] == 1) {
+									return false;
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case Keys.DOWN:
+			if (x >= 0 && y >= 0 && z >= 0) {
+				for (int j = 0; j < Config.Y; j++) {
+					for (int k = 0; k < Config.Z; k++) {
+						if (((y - (Config.Y - 1) + j) < Y && (y
+								- (Config.Y - 1) + j) >= 0)
+								&& ((z + k) >= 0 && ((z + k) < Z))) {
+							if (currentItem.checkBound(Keys.DOWN)) {
+								if (worldMatrix[x][y - (Config.Y - 1) + j][z
+										+ k] == 1
+										&& objectMatrix[1][j][k] == 1) {
+									return false;
+								}
+							} else {
+								if (worldMatrix[x - 1][y - (Config.Y - 1) + j][z
+										+ k] == 1
+										&& objectMatrix[0][j][k] == 1) {
+									return false;
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		}
+
+		return true;
 	}
 
 	private boolean moveOut() {

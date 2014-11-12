@@ -1,7 +1,6 @@
 package com.attila.horvath.gamelogic;
 
 import java.util.ArrayList;
-import com.badlogic.gdx.Gdx;
 
 public class WorldMatrix {
 	private int X, Y, Z;
@@ -37,7 +36,6 @@ public class WorldMatrix {
 		}
 
 		worldMatrix = tempMatrix;
-		 Gdx.app.log("World rotate", toString());
 	}
 
 	public void translateWorldMatrix(ArrayList<Integer> fullRowArray) {
@@ -49,7 +47,6 @@ public class WorldMatrix {
 				while (((index + 1) < fullRowArray.size())
 						&& (fullRowArray.get(index) == (1 + fullRowArray
 								.get(index + 1)))) {
-					Gdx.app.log("Full", String.valueOf(fullRowArray.get(index)));
 					index++;
 					moveStep++;
 				}
@@ -70,8 +67,6 @@ public class WorldMatrix {
 				}
 			}
 		}
-
-		Gdx.app.log("Translate rotate", toString());
 	}
 
 	public int[][][] getWorldMatrix() {

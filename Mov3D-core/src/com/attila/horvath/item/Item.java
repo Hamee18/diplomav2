@@ -4,6 +4,7 @@ import com.attila.horvath.config.Config;
 import com.attila.horvath.config.ReferenceMatrix;
 import com.attila.horvath.gamelogic.CubeMatrix;
 import com.attila.horvath.gamelogic.ObjectMatrix;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -43,20 +44,8 @@ public class Item extends ModelInstance implements RenderableProvider, Disposabl
 		this.moving = moving;
 	}
 
-	public Vector3[] getCorners() {
-		this.calculateTransforms();
-		BoundingBox box = new BoundingBox();
-		this.calculateBoundingBox(box);
-		float temp;
-		
-		Vector3[] corners = box.getCorners();
-		for(int i = 0; i < corners.length; i++) {
-			temp = corners[i].x;
-			corners[i].x = corners[i].z;
-			corners[i].z = temp;
-		}
-		
-		return corners;
+	public boolean canRotate(int keyCode, int[][][] worldMatrix, Vector3 middlePoint, int X, int Y, int Z) {
+		return objectMatrix.canRotate(keyCode, worldMatrix, middlePoint, X, Y, Z);
 	}
 	
 	public boolean checkBound(int keyCode) {
@@ -79,8 +68,8 @@ public class Item extends ModelInstance implements RenderableProvider, Disposabl
 		cubeMatrix.moveCubeInstances(keyCode);
 	}
 	
-	public void rotateCubeMatrix(float y) {
-		cubeMatrix.rotateCubeMatrix(objectMatrix.getObjectMatrix(), obj, y);
+	public void rotateCubeMatrix(int keyCode) {
+		cubeMatrix.rotateCubeMatrix(keyCode);
 	}
 	
 	public Array<Cube> getCubeInstances() {

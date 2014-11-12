@@ -82,7 +82,7 @@ public class WindowsGameScreen implements Screen{
 		modelBatch.render(assets.getInstances(), assets.getWorldEnv().getEnvironment());
 		modelBatch.end();
 
-		fps.log();
+//		fps.log();
 	}
 
 	@Override
