@@ -1,0 +1,201 @@
+
+imagegamebutton.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+down
+  rotate: false
+  xy: 0, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+downClick
+  rotate: false
+  xy: 0, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+left
+  rotate: false
+  xy: 35, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+leftClick
+  rotate: false
+  xy: 0, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+move
+  rotate: false
+  xy: 35, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+moveClick
+  rotate: false
+  xy: 70, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+pause
+  rotate: false
+  xy: 0, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+pauseClick
+  rotate: false
+  xy: 35, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+right
+  rotate: false
+  xy: 70, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+rightClick
+  rotate: false
+  xy: 105, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+rotate
+  rotate: false
+  xy: 35, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+rotateCamera
+  rotate: false
+  xy: 70, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+rotateCameraClick
+  rotate: false
+  xy: 105, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+rotateClick
+  rotate: false
+  xy: 140, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnDown
+  rotate: false
+  xy: 70, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnDownClick
+  rotate: false
+  xy: 105, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnLeft
+  rotate: false
+  xy: 140, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnLeftClick
+  rotate: false
+  xy: 175, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnLeftZ
+  rotate: false
+  xy: 105, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnLeftZClick
+  rotate: false
+  xy: 140, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnRight
+  rotate: false
+  xy: 175, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnRightClick
+  rotate: false
+  xy: 210, 105
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnRightZ
+  rotate: false
+  xy: 140, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnRightZClick
+  rotate: false
+  xy: 175, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnUp
+  rotate: false
+  xy: 210, 70
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+turnUpClick
+  rotate: false
+  xy: 175, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+up
+  rotate: false
+  xy: 210, 35
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
+upClick
+  rotate: false
+  xy: 210, 0
+  size: 35, 35
+  orig: 35, 35
+  offset: 0, 0
+  index: -1
